@@ -153,15 +153,15 @@ void AZSPlayerController::StartSprint(const FInputActionValue& Value)
 	if (!IsValid(PlayerCharacter))
 		return;
 
-	UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
-	if (!IsValid(ASC))
-		return;
-	
-	FGameplayTag SprintTag = FGameplayTag::RequestGameplayTag(FName("Ability.Sprint"));
-	FGameplayTagContainer SprintTagContainer;
-	SprintTagContainer.AddTag(SprintTag);
-	
-	ASC->TryActivateAbilitiesByTag(SprintTagContainer);
+	// UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
+	// if (!IsValid(ASC))
+	// 	return;
+	//
+	// FGameplayTag SprintTag = FGameplayTag::RequestGameplayTag(FName("Ability.Sprint"));
+	// FGameplayTagContainer SprintTagContainer;
+	// SprintTagContainer.AddTag(SprintTag);
+	//
+	// ASC->TryActivateAbilitiesByTag(SprintTagContainer);
 	
 // 	if (!bSprintFlag)
 // 	{

@@ -2,7 +2,10 @@
 
 
 #include "ZSPlayerCharacter.h"
+
+#include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "PlayerState/ZSPlayerState.h"
 
@@ -12,6 +15,29 @@ AZSPlayerCharacter::AZSPlayerCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	// 메시 Transform 설정
+	GetMesh()->SetRelativeLocation(FVector(0.0f, 0.0f, -90.0f));
+	GetMesh()->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
+	GetMesh()->bEnableUpdateRateOptimizations = false;
+
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	CameraBoom->bDoCollisionTest = false;
+
+	// Create a follow camera
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
+	bReplicates = true;
 }
 
 UAbilitySystemComponent* AZSPlayerCharacter::GetAbilitySystemComponent() const
@@ -31,11 +57,11 @@ void AZSPlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 
-	// AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
-	// AbilitySystemComponent = PS->GetAbilitySystemComponent();
-	// AttributeSet = PS->GetAttributeSet();
-	//
-	// InitASCFromPlayerState();
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+	AbilitySystemComponent = PS->GetAbilitySystemComponent();
+	AttributeSet = PS->GetAttributeSet();
+	
+	InitASCFromPlayerState();
 }
 
 // Called every frame
