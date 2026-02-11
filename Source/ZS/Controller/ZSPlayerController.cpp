@@ -22,21 +22,11 @@ void AZSPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// only spawn touch controls on local player controllers
-	if (SVirtualJoystick::ShouldDisplayTouchInterface() && IsLocalPlayerController())
+	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
 	{
-		// spawn the mobile controls widget
-		MobileControlsWidget = CreateWidget<UUserWidget>(this, MobileControlsWidgetClass);
-
-		if (MobileControlsWidget)
-		{
-			// add the controls to the player screen
-			MobileControlsWidget->AddToPlayerScreen(0);
-		}
-		else
-		{
-			UE_LOG(LogZS, Error, TEXT("Could not spawn mobile controls widget."));
-		}
+		check(DefaultMappingContext);
+		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
 }
 
@@ -44,38 +34,15 @@ void AZSPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	// only add IMCs for local player controllers
-	if (IsLocalPlayerController())
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
-		{
-			EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AZSPlayerController::Move);
-			EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AZSPlayerController::Look);
-			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AZSPlayerController::Jump);
-			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AZSPlayerController::StopJumping);
-			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AZSPlayerController::StartSprint);
-			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AZSPlayerController::StopSprint);
-			EnhancedInputComponent->BindAction( FireProjectileAction, ETriggerEvent::Completed, this, &AZSPlayerController::StartFireProjectile);
-		}
-
-		// Add Input Mapping Contexts
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<
-			UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer()))
-		{
-			for (UInputMappingContext* CurrentContext : DefaultMappingContexts)
-			{
-				Subsystem->AddMappingContext(CurrentContext, 0);
-			}
-
-			// only add these IMCs if we're not using mobile touch input
-			if (!SVirtualJoystick::ShouldDisplayTouchInterface())
-			{
-				for (UInputMappingContext* CurrentContext : MobileExcludedMappingContexts)
-				{
-					Subsystem->AddMappingContext(CurrentContext, 0);
-				}
-			}
-		}
+		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AZSPlayerController::Move);
+		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AZSPlayerController::Look);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AZSPlayerController::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AZSPlayerController::StopJumping);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AZSPlayerController::StartSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AZSPlayerController::StopSprint);
+		EnhancedInputComponent->BindAction( FireProjectileAction, ETriggerEvent::Completed, this, &AZSPlayerController::StartFireProjectile);
 	}
 }
 
@@ -94,18 +61,7 @@ void AZSPlayerController::Move(const FInputActionValue& Value)
 
 		ControlledPawn->AddMovementInput(InLookVector, InMoveVector.X);
 		ControlledPawn->AddMovementInput(InRightVector, InMoveVector.Y);
-
-
-		// ASKPlayerCharacter* PlayerCharacter = Cast<ASKPlayerCharacter>(ControlledPawn);
-		// if (PlayerCharacter)
-		// {
-		// 	USKActionComponent* ActionComponent = PlayerCharacter->GetActionComponent();
-		// 	if (ActionComponent)
-		// 	{
-		// 		const EMoveDirection MoveDirection = GetClosestMoveDirection(InMoveVector);
-		// 		ActionComponent->Server_SetMovementInfo(InMoveVector, MoveDirection);
-		// 	}
-		// }
+		
 	}
 }
 

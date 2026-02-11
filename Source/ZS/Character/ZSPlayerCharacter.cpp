@@ -50,7 +50,8 @@ UAbilitySystemComponent* AZSPlayerCharacter::GetAbilitySystemComponent() const
 void AZSPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	BaseSetting();
 }
 
 void AZSPlayerCharacter::PossessedBy(AController* NewController)
@@ -93,7 +94,7 @@ void AZSPlayerCharacter::BaseSetting()
 	GetCharacterMovement()->JumpZVelocity = 500.f; // 캐릭터 점프 높이 수정 필요
 	GetCharacterMovement()->AirControl = 0.35f;
 	// GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetSpeed();
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	GetCharacterMovement()->MaxWalkSpeed = 700.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
