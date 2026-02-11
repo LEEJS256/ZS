@@ -14,11 +14,29 @@ public class ZS : ModuleRules
 			"Engine",
 			"InputCore",
 			"EnhancedInput",
+			"StateTreeModule",
+		
+			//카메라 쉐이크
+			"GameplayCameras",
+			"EngineCameras",
+			// Niagara 관련 추가
+			"Niagara","NiagaraCore", "NiagaraShader", "RenderCore",
+			// AI
 			"AIModule",
+			"NavigationSystem",
 			"StateTreeModule",
 			"GameplayStateTreeModule",
-			"UMG",
-			"Slate"
+			// GAS
+			"GameplayAbilities",       
+			"GameplayTags",            
+			"GameplayTasks",   
+			// UI
+			"UMG", 
+			"Slate",
+			"SlateCore",
+			"CommonUI", 
+			"CommonInput",
+			"Paper2D",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] { });
