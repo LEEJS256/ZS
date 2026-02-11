@@ -1,0 +1,9 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Utility/ZSNativeGameplayTag.h"
+
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Team, "Team");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Team_Player, "Team.Player");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Team_Monster, "Team.Monster");
