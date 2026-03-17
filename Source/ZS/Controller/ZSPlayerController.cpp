@@ -7,10 +7,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "InputMappingContext.h"
-#include "Blueprint/UserWidget.h"
 #include "ZS.h"
 #include "Character/ZSPlayerCharacter.h"
-#include "Widgets/Input/SVirtualJoystick.h"
+#include "PlayerState/ZSPlayerState.h"
 
 AZSPlayerController::AZSPlayerController()
 {
@@ -39,10 +38,14 @@ void AZSPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AZSPlayerController::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AZSPlayerController::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AZSPlayerController::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &AZSPlayerController::StopJumping);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this, &AZSPlayerController::StartSprint);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AZSPlayerController::StopSprint);
-		EnhancedInputComponent->BindAction( FireProjectileAction, ETriggerEvent::Completed, this, &AZSPlayerController::StartFireProjectile);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this,
+		                                   &AZSPlayerController::StopJumping);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Started, this,
+		                                   &AZSPlayerController::StartSprint);
+		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this,
+		                                   &AZSPlayerController::StopSprint);
+		EnhancedInputComponent->BindAction(FireProjectileAction, ETriggerEvent::Completed, this,
+		                                   &AZSPlayerController::StartFireProjectile);
 	}
 }
 
@@ -61,7 +64,6 @@ void AZSPlayerController::Move(const FInputActionValue& Value)
 
 		ControlledPawn->AddMovementInput(InLookVector, InMoveVector.X);
 		ControlledPawn->AddMovementInput(InRightVector, InMoveVector.Y);
-		
 	}
 }
 
@@ -79,11 +81,11 @@ void AZSPlayerController::Jump(const FInputActionValue& Value)
 	APawn* ControlledPawn = GetPawn();
 	if (!IsValid(ControlledPawn))
 		return;
-	
+
 	AZSPlayerCharacter* PlayerCharacter = Cast<AZSPlayerCharacter>(ControlledPawn);
 	if (!IsValid(PlayerCharacter))
 		return;
-	
+
 	if (ACharacter* pCharacter = Cast<ACharacter>(GetPawn()))
 	{
 		pCharacter->Jump();
@@ -118,13 +120,13 @@ void AZSPlayerController::StartSprint(const FInputActionValue& Value)
 	// SprintTagContainer.AddTag(SprintTag);
 	//
 	// ASC->TryActivateAbilitiesByTag(SprintTagContainer);
-	
-// 	if (!bSprintFlag)
-// 	{
-// 		bSprintFlag = true;
-// 		PlayerCharacter->SetLooseTag(TAG_State_Movement_Sprint, true);
-// 		PlayerCharacter->SetLooseTag(TAG_State_Movement_Idle, false);
-// 	}
+
+	// 	if (!bSprintFlag)
+	// 	{
+	// 		bSprintFlag = true;
+	// 		PlayerCharacter->SetLooseTag(TAG_State_Movement_Sprint, true);
+	// 		PlayerCharacter->SetLooseTag(TAG_State_Movement_Idle, false);
+	// 	}
 }
 
 void AZSPlayerController::StopSprint(const FInputActionValue& Value)
@@ -156,5 +158,40 @@ void AZSPlayerController::StopSprint(const FInputActionValue& Value)
 
 void AZSPlayerController::StartFireProjectile(const FInputActionValue& Value)
 {
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
 	
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC)
+		return;
+	
+	
+	// FGameplayTagContainer GATagContainer;
+	// GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("ATK.Left")));
+	//
+	// ASC->TryActivateAbilitiesByTag(GATagContainer);
+
+
+
+	const FGameplayTag InputTag = FGameplayTag::RequestGameplayTag(FName("ATK.Left"));
+
+	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
+	{
+		if (!Spec.Ability)
+			continue;
+
+		UE_LOG(LogTemp, Warning, TEXT("Ability: %s"), *Spec.Ability->GetName());
+
+		if (Spec.Ability->AbilityTags.HasTag(InputTag))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Matched Tag Ability"));
+
+			const bool bActivated = ASC->TryActivateAbility(Spec.Handle);
+			UE_LOG(LogTemp, Warning, TEXT("TryActivateAbility Result: %d"), bActivated);
+		}
+	}
 }
+
