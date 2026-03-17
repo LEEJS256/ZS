@@ -79,6 +79,29 @@ void AZSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 
 }
 
+void AZSPlayerCharacter::ApplyAttributesToMovement()
+{
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	UZSAttributeSet* ZSAttributeSet = PS->GetAttributeSet();
+	if (!ZSAttributeSet)
+	{
+		return;
+	}
+
+	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+	if (!MoveComp)
+	{
+		return;
+	}
+
+	MoveComp->MaxWalkSpeed = ZSAttributeSet->GetSpeed();
+}
+
 void AZSPlayerCharacter::BaseSetting()
 {
 	// GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
@@ -94,7 +117,7 @@ void AZSPlayerCharacter::BaseSetting()
 	GetCharacterMovement()->JumpZVelocity = 500.f; // 캐릭터 점프 높이 수정 필요
 	GetCharacterMovement()->AirControl = 0.35f;
 	// GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetSpeed();
-	GetCharacterMovement()->MaxWalkSpeed = 700.f;
+	// GetCharacterMovement()->MaxWalkSpeed = 700.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
 	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
 	GetCharacterMovement()->BrakingDecelerationFalling = 1500.0f;
@@ -115,6 +138,10 @@ void AZSPlayerCharacter::InitASCFromPlayerState()
 
 	// 초기 속도 적용
 	OnSpeedAttributeChanged(FOnAttributeChangeData());
+	
+	PS->InitializePlayerDA();
+	ApplyAttributesToMovement();
+
 }
 
 void AZSPlayerCharacter::OnSpeedAttributeChanged(const FOnAttributeChangeData& Data)

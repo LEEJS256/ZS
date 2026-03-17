@@ -39,7 +39,7 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 #pragma region GAS
-
+	void ApplyAttributesToMovement();
 	//충돌이나 속도,운동관련
 	void BaseSetting();
 	void InitASCFromPlayerState();
