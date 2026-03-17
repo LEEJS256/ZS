@@ -40,6 +40,60 @@ UZSAttributeSet* AZSPlayerState::GetAttributeSet() const
 	return AttributeSet;
 }
 
+void AZSPlayerState::InitializePlayerDA()
+{
+	if (!HasAuthority())
+		return;
+	if (!AbilitySystemComponent)
+		return;
+	UZSPlayerDataAsset* PlayerDA = CharacterData.LoadSynchronous();
+	if (!PlayerDA)
+		return;
+
+	GrantDefaultGA(PlayerDA);
+	ApplyDefaultAttributes(PlayerDA);
+}
+
+void AZSPlayerState::GrantDefaultGA(UZSPlayerDataAsset* Data)
+{
+	if (!Data || !AbilitySystemComponent)
+	{
+		return;
+	}
+	
+	int32 InputID = 0;
+	for (const TSubclassOf<UGameplayAbility>& AbilityClass : CharacterData->StartupGA)
+	{
+		if (AbilityClass)
+		{
+			AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(AbilityClass, 1, InputID, this));
+			InputID++;
+		}
+	}
+
+
+}
+
+void AZSPlayerState::ApplyDefaultAttributes(UZSPlayerDataAsset* Data)
+{
+	if (!Data || !AttributeSet)
+	{
+		return;
+	}
+
+	AttributeSet->SetHealth(Data->Health);
+	AttributeSet->SetMaxHealth(Data->MaxHealth);
+
+	AttributeSet->SetStamina(Data->Stamina);
+	AttributeSet->SetMaxStamina(Data->MaxStamina);
+
+	AttributeSet->SetAttack(Data->Attack);
+	AttributeSet->SetArmor(Data->Armor);
+
+	AttributeSet->SetSpeed(Data->Speed);
+}
+
 void AZSPlayerState::InitializeGAS()
 {
 	// ASC 생성

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ZS/DA/ZSPlayerDataAsset.h"
 #include "GameFramework/PlayerState.h"
 #include "ZSPlayerState.generated.h"
 
@@ -26,14 +27,18 @@ public:
 	// 네트워크 복제에 필요한 함수 재정의
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 #pragma region GAS-function
+	void InitializePlayerDA();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	UZSAttributeSet* GetAttributeSet() const;
 #pragma endregion
 	
 protected:
 #pragma region GAS
-
+	void GrantDefaultGA(UZSPlayerDataAsset* Data);
+	void ApplyDefaultAttributes(UZSPlayerDataAsset* Data);
 	
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "SK|GAS")
+	TSoftObjectPtr<UZSPlayerDataAsset> CharacterData;
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "SK|GAS")
 	class UAbilitySystemComponent* AbilitySystemComponent;
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "SK|GAS")
@@ -43,3 +48,5 @@ protected:
 private:
 	void InitializeGAS();
 };
+
+
