@@ -103,23 +103,21 @@ void AZSPlayerController::StopJumping()
 void AZSPlayerController::StartSprint(const FInputActionValue& Value)
 {
 	UE_LOG(LogZS, Error, TEXT("Start sprint not implemented"));
-	APawn* ControlledPawn = GetPawn();
-	if (!IsValid(ControlledPawn))
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC)
 		return;
 
-	AZSPlayerCharacter* PlayerCharacter = Cast<AZSPlayerCharacter>(ControlledPawn);
-	if (!IsValid(PlayerCharacter))
-		return;
+	FGameplayTag SprintTag = FGameplayTag::RequestGameplayTag(FName("Ability.Sprint"));
+	FGameplayTagContainer SprintTagContainer;
+	SprintTagContainer.AddTag(SprintTag);
 
-	// UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
-	// if (!IsValid(ASC))
-	// 	return;
-	//
-	// FGameplayTag SprintTag = FGameplayTag::RequestGameplayTag(FName("Ability.Sprint"));
-	// FGameplayTagContainer SprintTagContainer;
-	// SprintTagContainer.AddTag(SprintTag);
-	//
-	// ASC->TryActivateAbilitiesByTag(SprintTagContainer);
+	ASC->TryActivateAbilitiesByTag(SprintTagContainer);
 
 	// 	if (!bSprintFlag)
 	// 	{
@@ -131,22 +129,20 @@ void AZSPlayerController::StartSprint(const FInputActionValue& Value)
 
 void AZSPlayerController::StopSprint(const FInputActionValue& Value)
 {
-	APawn* ControlledPawn = GetPawn();
-	if (!IsValid(ControlledPawn))
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC)
 		return;
 
-	AZSPlayerCharacter* PlayerCharacter = Cast<AZSPlayerCharacter>(ControlledPawn);
-	if (!IsValid(PlayerCharacter))
-		return;
+	FGameplayTagContainer SprintTagContainer;
+	SprintTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Sprint")));
 
-	// UAbilitySystemComponent* ASC = PlayerCharacter->GetAbilitySystemComponent();
-	// if (!IsValid(ASC))
-	// 	return;
-	//
-	// FGameplayTagContainer SprintTagContainer;
-	// SprintTagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Sprint")));
-	//
-	// ASC->CancelAbilities(&SprintTagContainer);
+	ASC->CancelAbilities(&SprintTagContainer);
 
 	// if (bSprintFlag)
 	// {
@@ -163,35 +159,14 @@ void AZSPlayerController::StartFireProjectile(const FInputActionValue& Value)
 	{
 		return;
 	}
-	
+
 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 	if (!ASC)
 		return;
-	
-	
-	// FGameplayTagContainer GATagContainer;
-	// GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("ATK.Left")));
-	//
-	// ASC->TryActivateAbilitiesByTag(GATagContainer);
 
 
+	FGameplayTagContainer GATagContainer;
+	GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("ATK.Left")));
 
-	const FGameplayTag InputTag = FGameplayTag::RequestGameplayTag(FName("ATK.Left"));
-
-	for (const FGameplayAbilitySpec& Spec : ASC->GetActivatableAbilities())
-	{
-		if (!Spec.Ability)
-			continue;
-
-		UE_LOG(LogTemp, Warning, TEXT("Ability: %s"), *Spec.Ability->GetName());
-
-		if (Spec.Ability->AbilityTags.HasTag(InputTag))
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Matched Tag Ability"));
-
-			const bool bActivated = ASC->TryActivateAbility(Spec.Handle);
-			UE_LOG(LogTemp, Warning, TEXT("TryActivateAbility Result: %d"), bActivated);
-		}
-	}
+	ASC->TryActivateAbilitiesByTag(GATagContainer);
 }
-
