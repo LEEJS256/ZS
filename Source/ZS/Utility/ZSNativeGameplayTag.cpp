@@ -11,3 +11,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Team_Monster, "Team.Monster");
 UE_DEFINE_GAMEPLAY_TAG(TAG_ATK_Left, "ATK.Left");
 UE_DEFINE_GAMEPLAY_TAG(TAG_ATK_Right, "ATK.Right");
 
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability, "Ability");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dodge, "Ability.Dodge");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Ultimate, "Ability.Ultimate");
