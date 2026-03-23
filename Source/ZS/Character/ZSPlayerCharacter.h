@@ -9,6 +9,7 @@
 
 
 class UZSAttributeSet;
+class UZS_playerHudWidget;
 
 UCLASS()
 class ZS_API AZSPlayerCharacter : public ACharacter
@@ -27,6 +28,11 @@ public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+#pragma region CommonFunction
+	void SetSprinting(bool bSprinting);
+
+#pragma  endregion
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -39,17 +45,28 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 #pragma region GAS
+
 	void ApplyAttributesToMovement();
 	//충돌이나 속도,운동관련
 	void BaseSetting();
 	void InitASCFromPlayerState();
 
 	void OnSpeedAttributeChanged(const FOnAttributeChangeData& Data);
-	
+
 	UPROPERTY()
 	UAbilitySystemComponent* AbilitySystemComponent;
 	UPROPERTY()
 	UZSAttributeSet* AttributeSet;
+#pragma endregion
+
+#pragma region UI
+	void BaseUI();
+
+	UPROPERTY()
+	UZS_playerHudWidget* HUDWidget;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UUserWidget> HUDWidgetClass;
 #pragma endregion
 
 
@@ -61,4 +78,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 
+private:
+#pragma region PlayerAnim
+	bool bIsSprinting = false;
+	
+#pragma  endregion
 };

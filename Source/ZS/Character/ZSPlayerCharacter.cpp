@@ -3,16 +3,18 @@
 
 #include "ZSPlayerCharacter.h"
 
+#include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "PlayerState/ZSPlayerState.h"
+#include "UI/ZS_playerHudWidget.h"
 
 // Sets default values
 AZSPlayerCharacter::AZSPlayerCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	bUseControllerRotationPitch = false;
@@ -42,8 +44,17 @@ AZSPlayerCharacter::AZSPlayerCharacter()
 
 UAbilitySystemComponent* AZSPlayerCharacter::GetAbilitySystemComponent() const
 {
-	AZSPlayerCharacter* PS = GetPlayerState<AZSPlayerCharacter>();
-	return PS ? PS->GetAbilitySystemComponent() : nullptr;
+	// AZSPlayerCharacter* PS = GetPlayerState<AZSPlayerCharacter>();
+	// return PS ? PS->GetAbilitySystemComponent() : nullptr;
+	return AbilitySystemComponent;
+}
+
+void AZSPlayerCharacter::SetSprinting(bool bSprinting)
+{
+	bIsSprinting = bSprinting;
+	float WalkSpeed = AttributeSet->GetSpeed();
+	float SprintSpeed = AttributeSet->GetSprintWeight() * WalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? SprintSpeed : WalkSpeed;
 }
 
 // Called when the game starts or when spawned
@@ -52,6 +63,7 @@ void AZSPlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	BaseSetting();
+	BaseUI();
 }
 
 void AZSPlayerCharacter::PossessedBy(AController* NewController)
@@ -61,7 +73,7 @@ void AZSPlayerCharacter::PossessedBy(AController* NewController)
 	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
 	AbilitySystemComponent = PS->GetAbilitySystemComponent();
 	AttributeSet = PS->GetAttributeSet();
-	
+
 	InitASCFromPlayerState();
 }
 
@@ -69,14 +81,12 @@ void AZSPlayerCharacter::PossessedBy(AController* NewController)
 void AZSPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
 void AZSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 void AZSPlayerCharacter::ApplyAttributesToMovement()
@@ -138,10 +148,9 @@ void AZSPlayerCharacter::InitASCFromPlayerState()
 
 	// 초기 속도 적용
 	OnSpeedAttributeChanged(FOnAttributeChangeData());
-	
+
 	PS->InitializePlayerDA();
 	ApplyAttributesToMovement();
-
 }
 
 void AZSPlayerCharacter::OnSpeedAttributeChanged(const FOnAttributeChangeData& Data)
@@ -160,3 +169,15 @@ void AZSPlayerCharacter::OnSpeedAttributeChanged(const FOnAttributeChangeData& D
 	MoveComp->MaxWalkSpeed = NewSpeed;
 }
 
+void AZSPlayerCharacter::BaseUI()
+{
+	if (HUDWidgetClass)
+	{
+		HUDWidget = Cast<UZS_playerHudWidget>(CreateWidget(GetWorld(), HUDWidgetClass));
+		if (HUDWidget)
+		{
+			HUDWidget->AddToViewport();
+			HUDWidget->Init(this);
+		}
+	}
+}
