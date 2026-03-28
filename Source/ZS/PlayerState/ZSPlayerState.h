@@ -30,12 +30,17 @@ public:
 	void InitializePlayerDA();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	UZSAttributeSet* GetAttributeSet() const;
+
+	void GrantStateTag(FGameplayTag NewStateTag);
 #pragma endregion
 	
 protected:
 #pragma region GAS
 	void GrantDefaultGA(UZSPlayerDataAsset* Data);
 	void ApplyDefaultAttributes(UZSPlayerDataAsset* Data);
+
+	UPROPERTY()
+	TArray<FGameplayTag> StateTags;
 	
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "SK|GAS")
 	TSoftObjectPtr<UZSPlayerDataAsset> CharacterData;

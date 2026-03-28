@@ -4,9 +4,15 @@
 #include "PlayerState/ZSPlayerState.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "Utility/ZSNativeGameplayTag.h"
 
 AZSPlayerState::AZSPlayerState()
 {
+	StateTags = {
+		TAG_State_Idle,
+		TAG_State_Run
+	};
+	
 	InitializeGAS();
 }
 
@@ -52,6 +58,7 @@ void AZSPlayerState::InitializePlayerDA()
 
 	GrantDefaultGA(PlayerDA);
 	ApplyDefaultAttributes(PlayerDA);
+	GrantStateTag(TAG_State_Idle);
 }
 
 void AZSPlayerState::GrantDefaultGA(UZSPlayerDataAsset* Data)
@@ -69,6 +76,19 @@ void AZSPlayerState::GrantDefaultGA(UZSPlayerDataAsset* Data)
 			AbilitySystemComponent->GiveAbility(
 				FGameplayAbilitySpec(AbilityClass, 1, InputID, this));
 			InputID++;
+		}
+	}
+
+	FGameplayEffectContextHandle Ctx = AbilitySystemComponent->MakeEffectContext();
+	for (const TSubclassOf<UGameplayEffect>& GEClass : CharacterData->StartupGE)
+	{
+		if (GEClass)
+		{
+			AbilitySystemComponent->ApplyGameplayEffectToSelf(
+				GEClass->GetDefaultObject<UGameplayEffect>(),
+				1.f,
+				Ctx
+			);
 		}
 	}
 
@@ -93,6 +113,22 @@ void AZSPlayerState::ApplyDefaultAttributes(UZSPlayerDataAsset* Data)
 
 	AttributeSet->SetSpeed(Data->Speed);
 }
+
+void AZSPlayerState::GrantStateTag(FGameplayTag NewStateTag)
+{
+	if (!AbilitySystemComponent)
+		return;
+
+	// 기존 State 태그 전부 제거
+	for (const FGameplayTag& Tag : StateTags)
+	{
+		AbilitySystemComponent->RemoveLooseGameplayTag(Tag);
+	}
+
+	// 새 상태 태그 추가
+	AbilitySystemComponent->AddLooseGameplayTag(NewStateTag);
+}
+
 
 void AZSPlayerState::InitializeGAS()
 {
