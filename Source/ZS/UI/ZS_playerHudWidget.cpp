@@ -61,6 +61,12 @@ void UZS_playerHudWidget::OnHealthChanged(const struct FOnAttributeChangeData& D
 		// HealthText->SetText(FText::AsNumber(Data.NewValue));
 		HealthText->SetText(
 			FText::FromString(FString::Printf(TEXT("Health: %.0f"), Data.NewValue)));
+
+		float MaxHP = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxHealthAttribute());
+
+		UpdateHUD(Data.NewValue, MaxHP,
+			ASC->GetNumericAttribute(UZSAttributeSet::GetStaminaAttribute()),
+			ASC->GetNumericAttribute(UZSAttributeSet::GetMaxStaminaAttribute()));
 	}
 }
 
@@ -81,6 +87,14 @@ void UZS_playerHudWidget::OnStaminaChanged(const struct FOnAttributeChangeData& 
 		//StamintText->SetText(FText::AsNumber(Data.NewValue));
 		StamintText->SetText(
 			FText::FromString(FString::Printf(TEXT("Stamina: %.0f"), Data.NewValue)));
+
+		float MaxStamina = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxStaminaAttribute());
+
+		UpdateHUD(
+		ASC->GetNumericAttribute(UZSAttributeSet::GetHealthAttribute()),
+		ASC->GetNumericAttribute(UZSAttributeSet::GetMaxHealthAttribute()),
+			Data.NewValue,
+			MaxStamina);
 	}
 }
 
