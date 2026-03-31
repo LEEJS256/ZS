@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GAS/GA/ZSGameplayAbility.h"
 #include "Object/ZSProjectile.h"
+#include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
+#include "Utility/ZSNativeGameplayTag.h"
 #include "GA_FireProjectile_Left.generated.h"
 
 /**
@@ -32,11 +34,18 @@ public:
 		bool bWasCancelled) override;
 
 protected:
-	void FireProjectile();
-	FVector GetSpawnLocation() const;
-	FRotator GetSpawnRotation() const;
+	void FireProjectile(FGameplayTag ParaTag = TAG_Event_Fire_Left);
+	FVector GetSpawnLocation(FGameplayTag ParaTag = TAG_Event_Fire_Left) const;
+	FRotator GetSpawnRotation(int32 LeftRightNum = 1) const;
 
 protected:
+
+	UPROPERTY()
+	UAbilityTask_WaitGameplayEvent* EventTagTask;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Attack")
+	TArray<TObjectPtr<UAnimMontage>> AttackMontages;
+		
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	TSubclassOf<AZSProjectile> GAProjectile;
 
@@ -46,12 +55,21 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float MaxRange = 3000.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation")
-	TObjectPtr<UAnimMontage> FireMontage;
+	// UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Animation")
+	// TObjectPtr<UAnimMontage> FireMontage;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
 	TSubclassOf<UGameplayEffect> DamageEffectClass;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
 	float BaseDamage = 10.f;
+
+	UFUNCTION()
+	void OnMontageCompleted();
+
+	UFUNCTION()
+	void OnMontageInterrupted();
+
+	UFUNCTION()
+	void OnFireEvent(FGameplayEventData Payload);
 };
