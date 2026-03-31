@@ -5,6 +5,8 @@
 
 #include "Character/ZSPlayerCharacter.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
+#include "PlayerState/ZSPlayerState.h"
+#include "Utility/ZSNativeGameplayTag.h"
 
 UGA_Sprint::UGA_Sprint()
 {
@@ -18,6 +20,12 @@ void UGA_Sprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 	AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(ActorInfo->AvatarActor.Get());
 	if (!Character)
 		return;
+
+	AZSPlayerState* PS = Character->GetPlayerState<AZSPlayerState>();
+	if (PS)
+	{
+		PS->GrantStateTag(TAG_State_Run);
+	}
 	
 	if (!CommitAbility(Handle, ActorInfo, ActivationInfo)) 
 	{
@@ -39,6 +47,13 @@ void UGA_Sprint::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGame
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 	EndSprint();
+
+	AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
+	AZSPlayerState* PS = Character->GetPlayerState<AZSPlayerState>();
+	if (PS)
+	{
+		PS->GrantStateTag(TAG_State_Idle);
+	}
 }
 
 void UGA_Sprint::ConsumeStamina()
