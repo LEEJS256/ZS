@@ -21,3 +21,10 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Idle, "State.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Run, "State.Run");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Walk, "State.Walk");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Wound, "State.Wound");
+
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event, "Event");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Fire, "Event.Fire");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Fire_Left, "Event.Fire.Left");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Fire_Right, "Event.Fire.Right");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Bomd, "Event.Bomd");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Ultmate, "Event.Ultmate");
