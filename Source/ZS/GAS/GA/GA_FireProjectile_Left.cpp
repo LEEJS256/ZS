@@ -136,11 +136,22 @@ FRotator UGA_FireProjectile_Left::GetSpawnRotation(int32 LeftRightNum) const
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
 	if (!IsValid(AvatarActor))
 		return FRotator::ZeroRotator;
+	
+	const FGameplayAbilityActorInfo* ActorInfo = GetCurrentActorInfo();
+	if (ActorInfo->PlayerController.IsValid())
+	{
+		FRotator ControlRot = ActorInfo->PlayerController->GetControlRotation();
 
-	FRotator ActorRot = AvatarActor->GetActorRotation();
+		// Pitch, Roll 제거 (원하면 유지 가능)
+		return FRotator(0.f, ControlRot.Yaw, 0.f);
+	}
 
-	// Pitch, Roll 제거 (핵심)
-	return FRotator(0.f, ActorRot.Yaw, 0.f);
+	return FRotator::ZeroRotator;
+	
+	// FRotator ActorRot = AvatarActor->GetActorRotation();
+	//
+	// // Pitch, Roll 제거 (핵심)
+	// return FRotator(0.f, ActorRot.Yaw, 0.f);
 }
 
 void UGA_FireProjectile_Left::OnMontageCompleted()
