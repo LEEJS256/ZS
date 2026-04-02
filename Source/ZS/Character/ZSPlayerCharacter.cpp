@@ -18,7 +18,10 @@ AZSPlayerCharacter::AZSPlayerCharacter()
 	PrimaryActorTick.bCanEverTick = false;
 
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationYaw = false;
+	//카메라대로 캐릭터회전
+	 bUseControllerRotationYaw = true;
+	//bUseControllerRotationYaw = false;
+
 	bUseControllerRotationRoll = false;
 
 	// 메시 Transform 설정
@@ -117,14 +120,14 @@ void AZSPlayerCharacter::BaseSetting()
 	// GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// Configure character movement
-	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...
+	GetCharacterMovement()->bOrientRotationToMovement = false; // Character moves in the direction of input...
 	GetCharacterMovement()->bUseControllerDesiredRotation = false;
 
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 500.0f, 0.0f); // ...at this rotation rate
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
-	GetCharacterMovement()->JumpZVelocity = 500.f; // 캐릭터 점프 높이 수정 필요
+	GetCharacterMovement()->JumpZVelocity = 700.f; // 캐릭터 점프 높이 수정 필요
 	GetCharacterMovement()->AirControl = 0.35f;
 	// GetCharacterMovement()->MaxWalkSpeed = AttributeSet->GetSpeed();
 	// GetCharacterMovement()->MaxWalkSpeed = 700.f;
