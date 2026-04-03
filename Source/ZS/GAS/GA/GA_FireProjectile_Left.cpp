@@ -91,7 +91,7 @@ void UGA_FireProjectile_Left::FireProjectile(FGameplayTag ParaTag)
 		return;
 
 	const FVector SpawnLocation = GetSpawnLocation(ParaTag);
-	const FRotator SpawnRotation = GetSpawnRotation();
+	const FRotator SpawnRotation = GetSpawnRotationFromCrossHair(ParaTag);
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = PlayerCharacter;
@@ -152,6 +152,36 @@ FRotator UGA_FireProjectile_Left::GetSpawnRotation(int32 LeftRightNum) const
 	//
 	// // Pitch, Roll 제거 (핵심)
 	// return FRotator(0.f, ActorRot.Yaw, 0.f);
+}
+
+FRotator UGA_FireProjectile_Left::GetSpawnRotationFromCrossHair(FGameplayTag ParaTag)
+{
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC) return FRotator::ZeroRotator;
+
+	FVector CameraLoc;
+	FRotator CameraRot;
+	PC->GetPlayerViewPoint(CameraLoc, CameraRot);
+
+	FVector TraceEnd = CameraLoc + (CameraRot.Vector() * 10000.f);
+
+	FHitResult Hit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetAvatarActorFromActorInfo());
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		CameraLoc,
+		TraceEnd,
+		ECC_Visibility,
+		Params
+	);
+
+	FVector TargetLocation = bHit ? Hit.ImpactPoint : TraceEnd;
+
+	FVector MuzzleLocation = GetSpawnLocation(ParaTag);
+
+	return (TargetLocation - MuzzleLocation).Rotation();
 }
 
 void UGA_FireProjectile_Left::OnMontageCompleted()

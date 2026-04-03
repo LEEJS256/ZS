@@ -37,7 +37,7 @@ protected:
 	void FireProjectile(FGameplayTag ParaTag = TAG_Event_Fire_Left);
 	FVector GetSpawnLocation(FGameplayTag ParaTag = TAG_Event_Fire_Left) const;
 	FRotator GetSpawnRotation(int32 LeftRightNum = 1) const;
-
+	FRotator GetSpawnRotationFromCrossHair(FGameplayTag ParaTag);
 protected:
 
 	UPROPERTY()
