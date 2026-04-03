@@ -4,6 +4,7 @@
 #include "Character/Monster/ZSMonsterBase.h"
 #include "Controller/ZSAIController.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
+#include "Utility/ZSNativeGameplayTag.h"
 
 // Sets default values
 AZSMonsterBase::AZSMonsterBase()
@@ -27,6 +28,7 @@ void AZSMonsterBase::BeginPlay()
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		AbilitySystemComponent->AddLooseGameplayTag(TAG_Team_Monster);
 	}
 
 	MoveToNextPoint();
