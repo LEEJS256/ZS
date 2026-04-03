@@ -10,7 +10,7 @@
 
 class UZSAttributeSet;
 class UZS_playerHudWidget;
-
+class UZS_Crosshair;
 UCLASS()
 class ZS_API AZSPlayerCharacter : public ACharacter
 {
@@ -25,14 +25,14 @@ public:
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
 
 	/** Returns CameraBoom subobject **/
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return SpringArm; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 #pragma region CommonFunction
 	void SetSprinting(bool bSprinting);
 
 #pragma  endregion
-	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -60,19 +60,29 @@ protected:
 #pragma endregion
 
 #pragma region UI
+	bool IsTargetingEnemy();
 	void BaseUI();
+	void UpdateCrosshair();
 
+	bool bPrevTargeting = false;
+	
 	UPROPERTY()
 	UZS_playerHudWidget* HUDWidget;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
+
+
+	UPROPERTY(EditAnywhere, Category="UI")
+	TSubclassOf<UUserWidget> CrosshairWidgetClass;
+
+	UZS_Crosshair* CrosshairWidget;
 #pragma endregion
 
 
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-	USpringArmComponent* CameraBoom;
+	USpringArmComponent* SpringArm;
 
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -81,6 +91,8 @@ protected:
 private:
 #pragma region PlayerAnim
 	bool bIsSprinting = false;
-	
+
 #pragma  endregion
 };
+
+

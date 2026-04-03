@@ -3,19 +3,22 @@
 
 #include "ZSPlayerCharacter.h"
 
+#include "AbilitySystemInterface.h"
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "PlayerState/ZSPlayerState.h"
+#include "UI/ZS_Crosshair.h"
 #include "UI/ZS_playerHudWidget.h"
+#include "Utility/ZSNativeGameplayTag.h"
 
 // Sets default values
 AZSPlayerCharacter::AZSPlayerCharacter()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationPitch = false;
 	//카메라대로 캐릭터회전
@@ -31,15 +34,15 @@ AZSPlayerCharacter::AZSPlayerCharacter()
 	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 	GetMesh()->bEnableUpdateRateOptimizations = false;
 
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
-	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
-	CameraBoom->bDoCollisionTest = false;
+	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	SpringArm->SetupAttachment(RootComponent);
+	SpringArm->TargetArmLength = 400.0f; // The camera follows at this distance behind the character	
+	SpringArm->bUsePawnControlRotation = true; // Rotate the arm based on the controller
+	SpringArm->bDoCollisionTest = false;
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
+	FollowCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
 	// Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 	bReplicates = true;
@@ -84,6 +87,8 @@ void AZSPlayerCharacter::PossessedBy(AController* NewController)
 void AZSPlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	UpdateCrosshair();
 }
 
 // Called to bind functionality to input
@@ -171,6 +176,62 @@ void AZSPlayerCharacter::OnSpeedAttributeChanged(const FOnAttributeChangeData& D
 	// 이동 속도 적용
 	MoveComp->MaxWalkSpeed = NewSpeed;
 }
+void AZSPlayerCharacter::UpdateCrosshair()
+{
+	bool bNowTargeting =IsTargetingEnemy();
+
+	if (bNowTargeting != bPrevTargeting)
+	{
+		CrosshairWidget->UpdateCrosshairColor(bNowTargeting);
+		bPrevTargeting =bNowTargeting;
+	}
+}
+
+
+bool AZSPlayerCharacter::IsTargetingEnemy()
+{
+	bool ReturnResult = false;
+
+	FVector		Start;
+	FRotator	Rot;
+	Controller->GetPlayerViewPoint(Start,Rot);
+
+	FVector End = Start + Rot.Vector() * 10000.f;
+
+	FHitResult Hit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+
+	ReturnResult = GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		Start,
+		End,
+		ECC_Pawn,
+		Params);
+
+	AActor* HitActor = Hit.GetActor();
+	
+	if (ReturnResult && HitActor)
+	{
+		IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(HitActor);
+		if (ASCInterface)
+		{
+			UAbilitySystemComponent* ASC = ASCInterface->GetAbilitySystemComponent();
+			if (ASC && ASC->HasMatchingGameplayTag(TAG_Team_Monster))
+			{
+				// 몬스터 맞음
+				return true;
+			}
+		}
+	}
+	 //
+	 // if (ReturnResult && Hit.GetActor()->ActorHasTag("Monster"))
+	 // {
+	 // }
+
+	
+	return false;
+}
 
 void AZSPlayerCharacter::BaseUI()
 {
@@ -181,6 +242,15 @@ void AZSPlayerCharacter::BaseUI()
 		{
 			HUDWidget->AddToViewport();
 			HUDWidget->Init(this);
+		}
+	}
+
+	if (CrosshairWidgetClass)
+	{
+		CrosshairWidget = CreateWidget<UZS_Crosshair>(GetWorld(), CrosshairWidgetClass);
+		if (CrosshairWidget)
+		{
+			CrosshairWidget->AddToViewport();
 		}
 	}
 }
