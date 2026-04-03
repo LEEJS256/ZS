@@ -49,5 +49,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float LifeSeconds = 5.f;
-	
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	float ProjectileSpeed = 1000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	float ProjectileSpeedMax = 2000.f;
 };

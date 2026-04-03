@@ -28,8 +28,8 @@ AZSProjectile::AZSProjectile()
 
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovement"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 500.f;
-	ProjectileMovement->MaxSpeed = 1000.f;
+	ProjectileMovement->InitialSpeed = ProjectileSpeed;
+	ProjectileMovement->MaxSpeed = ProjectileSpeedMax;
 	ProjectileMovement->ProjectileGravityScale = 0.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 
