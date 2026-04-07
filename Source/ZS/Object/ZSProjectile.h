@@ -3,10 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayEffectTypes.h"
 #include "GameFramework/Actor.h"
 #include "ZSProjectile.generated.h"
 
-
+class UGameplayEffect;
 class USphereComponent;
 class UProjectileMovementComponent;
 class UNiagaraSystem;
@@ -22,6 +23,7 @@ public:
 	AZSProjectile();
 	virtual void Tick(float DeltaTime) override;
 
+	void Set_GE(TSubclassOf<UGameplayEffect> ParaGE,FGameplayEffectContextHandle InContext);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -33,13 +35,34 @@ protected:
 		UPrimitiveComponent* OtherComp,
 		FVector NormalImpulse,
 		const FHitResult& Hit);
-	
+
+	UFUNCTION()
+	void OnOverlap(
+		UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
+	virtual void PostInitializeComponents() override;
 protected:
+	void SpantImpact();
+	
+	UPROPERTY(EditDefaultsOnly, Category="GameEffect")
+	TSubclassOf<UGameplayEffect> DamageEffect;
+
+	FGameplayEffectContextHandle EffectContext;
+	
+	void ApplyDamageToTarget(AActor* TargetActor);
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Projectile")
 	TObjectPtr<USphereComponent> CollisionComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> NiagaraComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	TObjectPtr<UNiagaraSystem> ImpactVFX;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Projectile")
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
