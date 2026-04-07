@@ -31,13 +31,14 @@
 /Content/Audio/
 /Content/FreeMaterialPack/
 /Content/Effects/
-/Content/Effects/
-
-/Content/Effects/
+/Content/ContextEffects/
+/Content/Weapons/
+/Content/PhysicsMaterials/
 
 /Content/ParagonMaleAnnouncer/
 /Content/ParagonProps/
 /Content/Lighting/
+/Content/GameplayEffects/
 
 /Content/KiteDemo/
 /Content/ParagonTwinblast/
