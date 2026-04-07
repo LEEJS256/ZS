@@ -33,7 +33,7 @@ void UGA_Sprint::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const 
 		return;
 	}
 	
-	UE_LOG(LogTemp, Error, TEXT(">>> SPRINT GA ACTIVATED <<<"));
+	// UE_LOG(LogTemp, Error, TEXT(">>> SPRINT GA ACTIVATED <<<"));
 	Character->SetSprinting(true);
 	ConsumeStamina();
 

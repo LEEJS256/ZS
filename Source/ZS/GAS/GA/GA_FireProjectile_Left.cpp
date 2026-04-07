@@ -103,6 +103,18 @@ void UGA_FireProjectile_Left::FireProjectile(FGameplayTag ParaTag)
 		SpawnRotation,
 		SpawnParams
 	);
+
+	AZSProjectile* Projectile = Cast<AZSProjectile>(SpawnedProjectile);
+	if (!Projectile)
+		return;
+
+	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
+	if (!ASC) return;
+
+	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
+	Context.AddSourceObject(this);
+	
+	Projectile->Set_GE(DamageEffectClass,Context);
 }
 
 FVector UGA_FireProjectile_Left::GetSpawnLocation(FGameplayTag ParaTag) const
