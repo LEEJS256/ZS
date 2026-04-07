@@ -79,6 +79,20 @@ void UZSAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 		{
 		//	OnDamageTaken.Broadcast(-Delta);
 		}
+
+		//최종체력
+ 		float NewHealth = GetHealth();
+		
+		if (NewHealth <= 0.f)
+		{
+			// AActor* Owner = GetOwningActor();
+			UAbilitySystemComponent* ASC = GetOwningAbilitySystemComponent();
+
+			if (ASC)
+			{
+				ASC->AddLooseGameplayTag(FGameplayTag::RequestGameplayTag("State.Death"));
+			}
+		}
 	}
 	else if (Data.EvaluatedData.Attribute == GetMaxHealthAttribute())
 	{
