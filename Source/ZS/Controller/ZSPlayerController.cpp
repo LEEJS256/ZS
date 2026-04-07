@@ -7,7 +7,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "InputMappingContext.h"
-#include "ZS.h"
 #include "Character/ZSPlayerCharacter.h"
 #include "PlayerState/ZSPlayerState.h"
 
@@ -51,7 +50,7 @@ void AZSPlayerController::SetupInputComponent()
 
 void AZSPlayerController::Move(const FInputActionValue& Value)
 {
-	UE_LOG(LogZS, Error, TEXT("Move not implemented"));
+	// UE_LOG(LogZS, Error, TEXT("Move not implemented"));
 	if (APawn* ControlledPawn = GetPawn())
 	{
 		const FVector2D InMoveVector = Value.Get<FVector2D>();
@@ -77,7 +76,7 @@ void AZSPlayerController::Look(const FInputActionValue& Value)
 
 void AZSPlayerController::Jump(const FInputActionValue& Value)
 {
-	UE_LOG(LogZS, Error, TEXT("Jump not implemented"));
+	// UE_LOG(LogZS, Error, TEXT("Jump not implemented"));
 	APawn* ControlledPawn = GetPawn();
 	if (!IsValid(ControlledPawn))
 		return;
@@ -102,7 +101,7 @@ void AZSPlayerController::StopJumping()
 
 void AZSPlayerController::StartSprint(const FInputActionValue& Value)
 {
-	UE_LOG(LogZS, Error, TEXT("Start sprint not implemented"));
+	// UE_LOG(LogZS, Error, TEXT("Start sprint not implemented"));
 	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
 	if (!PS)
 	{

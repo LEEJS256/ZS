@@ -10,7 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
-#include "ZS.h"
+
 
 AZSCharacter::AZSCharacter()
 {
@@ -68,7 +68,7 @@ void AZSCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompone
 	}
 	else
 	{
-		UE_LOG(LogZS, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
+		// UE_LOG(LogZS, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
 
