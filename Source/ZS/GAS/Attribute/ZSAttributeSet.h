@@ -85,8 +85,24 @@ public:
 
 #pragma endregion
 
+#pragma region Delegate
+
+	// DECLARE_MULTICAST_DELEGATE_TwoParams(FOnDamageTaken, float, FVector);
+	DECLARE_MULTICAST_DELEGATE_FourParams(
+		FOnDamageTaken,
+		float,      // Damage
+		FVector,    // HitLocation
+		bool,       // Critical
+		FGameplayTag // DamageType
+	);
+	
+	FOnDamageTaken OnDamageTaken;
+#pragma  endregion
+
 
 protected:
+
+	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	//attribute 값이 실제로 변경되기 직전

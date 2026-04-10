@@ -5,6 +5,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectTypes.h"   // FGameplayEffectModCallbackData 포함
 #include "GameplayEffectExtension.h" // 일부 확장 관련 기능
+#include "Utility/ZSNativeGameplayTag.h"
 
 UZSAttributeSet::UZSAttributeSet()
 {
@@ -77,7 +78,26 @@ void UZSAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 
 		if (Delta < 0.f)
 		{
-		//	OnDamageTaken.Broadcast(-Delta);
+			//데미지 처리
+			FVector HitLocation = Data.Target.GetAvatarActor()->GetActorLocation();
+
+			// OnDamageTaken.Broadcast(-Delta, HitLocation);
+
+			const FGameplayEffectSpec& Spec = Data.EffectSpec;
+
+			// 🔹 크리티컬 여부
+			bool bCritical = Spec.DynamicGrantedTags.HasTag(TAG_ATKType_Crit);
+
+			// 🔹 데미지 타입
+			FGameplayTag DamageType = TAG_DMGType_Normal;
+
+			if (Spec.DynamicGrantedTags.HasTag(TAG_DMGType_Fire))
+				DamageType = TAG_DMGType_Fire;
+			else if (Spec.DynamicGrantedTags.HasTag(TAG_DMGType_Ice))
+				DamageType = TAG_DMGType_Ice;
+
+		
+			OnDamageTaken.Broadcast(-Delta, HitLocation, bCritical, DamageType);
 		}
 
 		//최종체력
