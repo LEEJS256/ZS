@@ -8,6 +8,8 @@
 #include "Components/WidgetComponent.h"
 #include "Controller/ZSAIController.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
+#include "Kismet/GameplayStatics.h"
+#include "UI/WBP_Damage_Text.h"
 #include "UI/ZS_MonsterHealthWidget.h"
 #include "Utility/ZSNativeGameplayTag.h"
 
@@ -37,6 +39,7 @@ AZSMonsterBase::AZSMonsterBase()
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Block);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
+	
 }
 
 // Called when the game starts or when spawned
@@ -165,9 +168,13 @@ void AZSMonsterBase::UpdateHealthBarRotation()
 
 void AZSMonsterBase::BaseDelegate()
 {
+	//체력변했을때
 	AbilitySystemComponent
 		->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute())
 		.AddUObject(this, &AZSMonsterBase::OnHealthChanged);
+
+	//데미지 받았을때
+	AttributeSet->OnDamageTaken.AddUObject(this, &AZSMonsterBase::HandleDamageTaken);
 }
 
 void AZSMonsterBase::BaseUI()
@@ -224,6 +231,43 @@ void AZSMonsterBase::UpdateDissolve(float DeltaTime)
 void AZSMonsterBase::SetDissolve(bool ArgDissolove)
 {
 	bIsDissolving = ArgDissolove;
+}
+
+
+void AZSMonsterBase::HandleDamageTaken(float Damage, FVector Location, bool bCritical, FGameplayTag DamageType)
+{
+	if (!DamageWidgetClass) return;
+
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC) return;
+
+	UWBP_Damage_Text* Widget = CreateWidget<UWBP_Damage_Text>(PC, DamageWidgetClass);
+	if (!Widget) return;
+
+	Widget->AddToViewport();
+
+	// 🔹 위치 (월드 → 스크린)
+	FVector Offset = FVector(
+		FMath::RandRange(-30.f, 30.f),
+		FMath::RandRange(-30.f, 30.f),
+		100.f
+	);
+
+	FVector2D ScreenPos;
+	UGameplayStatics::ProjectWorldToScreen(
+		PC,
+		Location + Offset,
+		ScreenPos
+	);
+
+	Widget->SetPositionInViewport(ScreenPos);
+
+	// 🔹 캐스팅해서 값 전달
+	auto DamageWidget = Cast<UWBP_Damage_Text>(Widget);
+	if (DamageWidget)
+	{
+		DamageWidget->InitDamage(Damage, bCritical, DamageType);
+	}
 }
 
 void AZSMonsterBase::InitializePlayerDA()

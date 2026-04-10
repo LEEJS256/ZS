@@ -8,6 +8,8 @@
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "GameFramework/Character.h"
 #include "ZSMonsterBase.generated.h"
+
+class UWBP_Damage_Text;
 class UZSPlayerDataAsset;
 class UWidgetComponent;
 class UZS_MonsterHealthWidget;
@@ -62,6 +64,12 @@ protected:
 	
 #pragma endregion
 
+#pragma region UI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<UWBP_Damage_Text> DamageWidgetClass;
+	
+	void HandleDamageTaken(float Damage,FVector Location,bool bCritical,FGameplayTag DamageType);
+#pragma  endregion 
 	
 #pragma region  GAS
 
