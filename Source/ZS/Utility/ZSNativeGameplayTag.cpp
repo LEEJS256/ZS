@@ -26,6 +26,9 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability, "Ability");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Sprint, "Ability.Sprint");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Dodge, "Ability.Dodge");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Ultimate, "Ability.Ultimate");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_BuildTower, "Ability.BuildTower");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_Tower_ATK, "Ability.Tower.ATK");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_InterAction, "Ability.InterAction");
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_State, "State");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Idle, "State.Idle");
@@ -33,6 +36,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_State_Run, "State.Run");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Walk, "State.Walk");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Wound, "State.Wound");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Death, "State.Death");
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Build, "State.Build");
 
 
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event, "Event");
