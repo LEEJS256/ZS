@@ -15,6 +15,22 @@
 - 몬스터 데미지 처리
 - 데미지 UI 출력
 
+## 문서 정리
+### Character
+- [Player.md](docs/Character/Player.md)
+
+- [PlayerState.md](docs/Character/PlayerState.md)
+
+- [Monster.md](docs/Character/Monster.md)
+
+### Combat
+- [GA_Death.md](docs/Combat/GA/GA_Death.md)
+- [GA_Evade.md](docs/Combat/GA/GA_Evade.md)
+- [GA_Fire_left.md](docs/Combat/GA/GA_Fire_left.md)
+- [GA_Fire_right.md](docs/Combat/GA/GA_Fire_right.md)
+- [GA_Sprint.md](docs/Combat/GA/GA_Sprint.md)
+
+
 ## 진행 상태
 - [0] 데미지 시스템
 - [0] 데미지 UI
