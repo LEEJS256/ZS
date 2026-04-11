@@ -45,6 +45,12 @@ void AZSPlayerController::SetupInputComponent()
 		                                   &AZSPlayerController::StopSprint);
 		EnhancedInputComponent->BindAction(FireProjectileAction, ETriggerEvent::Completed, this,
 		                                   &AZSPlayerController::StartFireProjectile);
+		EnhancedInputComponent->BindAction(Fire_Right_Action, ETriggerEvent::Completed, this,
+								   &AZSPlayerController::ATK_Right);
+		EnhancedInputComponent->BindAction(Fire_Ultimate_Action, ETriggerEvent::Completed, this,
+								   &AZSPlayerController::ATK_Ultimate);
+		EnhancedInputComponent->BindAction(BuildTower_Action, ETriggerEvent::Completed, this,
+								   &AZSPlayerController::BuildTower);
 	}
 }
 
@@ -166,6 +172,32 @@ void AZSPlayerController::StartFireProjectile(const FInputActionValue& Value)
 
 	FGameplayTagContainer GATagContainer;
 	GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("ATK.Left")));
+
+	ASC->TryActivateAbilitiesByTag(GATagContainer);
+}
+
+void AZSPlayerController::ATK_Right(const FInputActionValue& Value)
+{
+}
+
+void AZSPlayerController::ATK_Ultimate(const FInputActionValue& Value)
+{
+}
+
+void AZSPlayerController::BuildTower(const FInputActionValue& Value)
+{
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC)
+		return;
+
+	FGameplayTagContainer GATagContainer;
+	GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BuildTower")));
 
 	ASC->TryActivateAbilitiesByTag(GATagContainer);
 }

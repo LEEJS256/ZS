@@ -60,7 +60,13 @@ public:
 	TObjectPtr<UInputAction> SprintAction;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ZS|Input")
 	TObjectPtr<UInputAction> FireProjectileAction;
-
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ZS|Input")
+	TObjectPtr<UInputAction> Fire_Right_Action;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ZS|Input")
+	TObjectPtr<UInputAction> Fire_Ultimate_Action;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ZS|Input")
+	TObjectPtr<UInputAction> BuildTower_Action;
+	
 #pragma endregion
 
 private:
@@ -73,6 +79,9 @@ private:
 	void StartSprint(const FInputActionValue& Value);
 	void StopSprint(const FInputActionValue& Value);
 	void StartFireProjectile(const FInputActionValue& Value);
-
+	void ATK_Right(const FInputActionValue& Value);
+	void ATK_Ultimate(const FInputActionValue& Value);
+	void BuildTower(const FInputActionValue& Value);
+	
 #pragma endregion
 };
