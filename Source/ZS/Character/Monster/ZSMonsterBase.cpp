@@ -51,7 +51,7 @@ void AZSMonsterBase::BeginPlay()
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 		AbilitySystemComponent->AddLooseGameplayTag(TAG_Team_Monster);
-		InitializePlayerDA();
+		InitializeMonsterDA();
 	}
 
 	BaseDelegate();
@@ -270,18 +270,18 @@ void AZSMonsterBase::HandleDamageTaken(float Damage, FVector Location, bool bCri
 	}
 }
 
-void AZSMonsterBase::InitializePlayerDA()
+void AZSMonsterBase::InitializeMonsterDA()
 {
 	if (!HasAuthority())
 		return;
 	if (!AbilitySystemComponent)
 		return;
-	UZSPlayerDataAsset* PlayerDA = CharacterData.LoadSynchronous();
-	if (!PlayerDA)
+	UZSPlayerDataAsset* MonsterDA = CharacterData.LoadSynchronous();
+	if (!MonsterDA)
 		return;
 
-	GrantDefaultGA(PlayerDA);
-	ApplyDefaultAttributes(PlayerDA);
+	GrantDefaultGA(MonsterDA);
+	ApplyDefaultAttributes(MonsterDA);
 
 }
 

@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystemInterface.h"
-#include "Engine/TargetPoint.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
+#include "Engine/TargetPoint.h"
 #include "GameFramework/Character.h"
 #include "ZSMonsterBase.generated.h"
 
@@ -74,7 +74,7 @@ protected:
 #pragma region  GAS
 
 	
-	void InitializePlayerDA();
+	void InitializeMonsterDA();
 	void GrantDefaultGA(UZSPlayerDataAsset* Data);
 	void ApplyDefaultAttributes(UZSPlayerDataAsset* Data);
 
