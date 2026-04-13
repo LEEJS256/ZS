@@ -11,11 +11,13 @@
  * 
  */
 
+class AZSTower_Preview;
 
 UCLASS()
 class ZS_API UGA_BuildTower : public UZSGameplayAbility
 {
 	GENERATED_BODY()
+
 public:
 	UGA_BuildTower();
 
@@ -31,10 +33,25 @@ public:
 		const FGameplayAbilityActivationInfo ActivationInfo,
 		bool bReplicateEndAbility,
 		bool bWasCancelled) override;
+
 protected:
+	UFUNCTION()
+	void OnRightClick(FGameplayEventData Payload);
+	UFUNCTION()
+	void OnLeftClick(FGameplayEventData Payload);
+
+	UPROPERTY()
+	class UAbilityTask_WaitGameplayEvent* RightClickTask;
+	UPROPERTY()
+	class UAbilityTask_WaitGameplayEvent* LeftClickTask;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	TSubclassOf<AZSTower> GA_Tower;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	TSubclassOf<AZSTower_Preview> GA_Tower_Preview;
+
+	UPROPERTY()
+	AZSTower_Preview* Preview_Tower;
 	void BuildTower(FVector ArgLocation);
-	
 };
