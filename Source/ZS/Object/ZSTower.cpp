@@ -41,12 +41,6 @@ void AZSTower::BeginPlay()
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
 	}
-
-	if (PreviewMaterial)
-	{
-		PreviewMID = BaseMesh->CreateDynamicMaterialInstance(0, PreviewMaterial);
-	}
-	
 }
 
 // Called every frame
@@ -105,12 +99,12 @@ void AZSTower::InitializeObjectDA()
 		return;
 	if (!AbilitySystemComponent)
 		return;
-	UZSPlayerDataAsset* MonsterDA = ObjectDA.LoadSynchronous();
-	if (!MonsterDA)
+	UZSPlayerDataAsset* DataAssetPtr = ObjectDA.LoadSynchronous();
+	if (!DataAssetPtr)
 		return;
 
-	GrantDefaultGA(MonsterDA);
-	ApplyDefaultAttributes(MonsterDA);
+	GrantDefaultGA(DataAssetPtr);
+	ApplyDefaultAttributes(DataAssetPtr);
 }
 
 void AZSTower::GrantDefaultGA(UZSPlayerDataAsset* Data)
@@ -164,18 +158,4 @@ void AZSTower::ApplyDefaultAttributes(UZSPlayerDataAsset* Data)
 	AttributeSet->SetSpeed(Data->Speed);
 }
 
-void AZSTower::SetValid(bool bIsValid)
-{
-	if (!PreviewMID) return;
-
-	if (bIsValid)
-	{
-		PreviewMID->SetVectorParameterValue("M_Color", FLinearColor::Green);
-	}
-	else
-	{
-		PreviewMID->SetVectorParameterValue("M_Color", FLinearColor::Red);
-	}
-
-}
 

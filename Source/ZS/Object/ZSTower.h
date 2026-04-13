@@ -23,30 +23,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-
-	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "SK|GAS")
-	TSoftObjectPtr<UZSPlayerDataAsset> ObjectDA;
 	public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-#pragma region EFFECT
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UMaterialInterface* PreviewMaterial;
-	
-	UPROPERTY()
-	UMaterialInstanceDynamic* PreviewMID;
-	
-#pragma  endregion 
-
-private:
-	float AttackRange = 500.f;
-	float AttackCooldown = 1.0f;
-	float CurrentTime = 0.f;
-
-	void FindAndAttack();
-	void Attack(AActor* Target);
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "SK|GAS")
+	TSoftObjectPtr<UZSPlayerDataAsset> ObjectDA;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tower", meta=(AllowPrivateAccess="true"))
 	UStaticMeshComponent* BaseMesh;
@@ -56,6 +38,15 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tower", meta=(AllowPrivateAccess="true"))
 	UStaticMeshComponent* Barrel;
+
+private:
+	float AttackRange = 500.f;
+	float AttackCooldown = 1.0f;
+	float CurrentTime = 0.f;
+
+	void FindAndAttack();
+	void Attack(AActor* Target);
+
 	
 	UPROPERTY()
 	UAbilitySystemComponent* AbilitySystemComponent;
@@ -66,6 +57,5 @@ private:
 	void InitializeObjectDA();
 	void GrantDefaultGA(UZSPlayerDataAsset* Data);
 	void ApplyDefaultAttributes(UZSPlayerDataAsset* Data);
-
-	void SetValid(bool bIsValid = false);
+	
 };
