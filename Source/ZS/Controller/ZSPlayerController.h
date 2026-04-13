@@ -46,6 +46,9 @@ protected:
 	virtual void SetupInputComponent() override;
 
 public:
+	bool GetMouseHitLocation(FVector& OutLocation);
+	bool GetCenterHitLocation(FVector& OutLocation);
+	
 #pragma  region InputMappings
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ZS|Input")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;

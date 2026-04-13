@@ -3,12 +3,14 @@
 
 #include "ZSPlayerController.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
 #include "InputMappingContext.h"
 #include "Character/ZSPlayerCharacter.h"
 #include "PlayerState/ZSPlayerState.h"
+#include "Utility/ZSNativeGameplayTag.h"
 
 AZSPlayerController::AZSPlayerController()
 {
@@ -46,12 +48,88 @@ void AZSPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(FireProjectileAction, ETriggerEvent::Completed, this,
 		                                   &AZSPlayerController::StartFireProjectile);
 		EnhancedInputComponent->BindAction(Fire_Right_Action, ETriggerEvent::Completed, this,
-								   &AZSPlayerController::ATK_Right);
+		                                   &AZSPlayerController::ATK_Right);
 		EnhancedInputComponent->BindAction(Fire_Ultimate_Action, ETriggerEvent::Completed, this,
-								   &AZSPlayerController::ATK_Ultimate);
+		                                   &AZSPlayerController::ATK_Ultimate);
 		EnhancedInputComponent->BindAction(BuildTower_Action, ETriggerEvent::Completed, this,
-								   &AZSPlayerController::BuildTower);
+		                                   &AZSPlayerController::BuildTower);
 	}
+}
+
+bool AZSPlayerController::GetMouseHitLocation(FVector& OutLocation)
+{
+	float MouseX, MouseY;
+
+	if (!GetMousePosition(MouseX, MouseY))
+		return false;
+
+	FVector WorldLocation;
+	FVector WorldDirection;
+
+	// 화면 → 월드 변환
+	DeprojectScreenPositionToWorld(MouseX, MouseY, WorldLocation, WorldDirection);
+
+	FVector Start = WorldLocation;
+	FVector End = Start + (WorldDirection * 10000.f);
+
+	FHitResult Hit;
+
+	FCollisionQueryParams Params;
+	Params.bReturnPhysicalMaterial = false;
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		Start,
+		End,
+		ECC_Visibility, // 또는 Ground 채널
+		Params
+	);
+
+	if (bHit)
+	{
+		OutLocation = Hit.Location;
+		DrawDebugSphere(GetWorld(), Hit.Location, 20.f, 12, FColor::Green);
+		return true;
+	}
+	else
+	{
+		DrawDebugLine(GetWorld(), Start, End, FColor::Red);
+	}
+
+	return false;
+
+}
+
+bool AZSPlayerController::GetCenterHitLocation(FVector& OutLocation)
+{
+	int32 SizeX, SizeY;
+	GetViewportSize(SizeX, SizeY);
+
+	float CenterX = SizeX * 0.5f;
+	float CenterY = SizeY * 0.5f;
+
+	FVector WorldLoc, WorldDir;
+	DeprojectScreenPositionToWorld(CenterX, CenterY, WorldLoc, WorldDir);
+
+	FVector Start = WorldLoc;
+	FVector End = Start + (WorldDir * 10000.f);
+
+	FHitResult Hit;
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		Start,
+		End,
+		ECC_Visibility
+	);
+
+	if (bHit)
+	{
+		OutLocation = Hit.Location;
+		return true;
+	}
+
+	return false;
 }
 
 void AZSPlayerController::Move(const FInputActionValue& Value)
@@ -164,6 +242,13 @@ void AZSPlayerController::StartFireProjectile(const FInputActionValue& Value)
 	{
 		return;
 	}
+	
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		PS,
+		TAG_Input_LeftClick,
+		FGameplayEventData()
+	);
+	
 
 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 	if (!ASC)
@@ -178,6 +263,20 @@ void AZSPlayerController::StartFireProjectile(const FInputActionValue& Value)
 
 void AZSPlayerController::ATK_Right(const FInputActionValue& Value)
 {
+	// AActor* Avatar = GetPawn();
+	//
+	// if (!Avatar)
+	// 	return;
+
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+	if (!PS)
+		return;
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
+		PS,
+		TAG_Input_RightClick,
+		FGameplayEventData()
+	);
+
 }
 
 void AZSPlayerController::ATK_Ultimate(const FInputActionValue& Value)
