@@ -27,7 +27,6 @@ void AZSTower_Preview::BeginPlay()
 				PreviewMIDs.Add(MID);
 			}
 		}
-		// PreviewMID = BaseMesh->CreateDynamicMaterialInstance(0, PreviewMaterial);
 		SetValid(false);
 	}
 }
@@ -35,10 +34,13 @@ void AZSTower_Preview::BeginPlay()
 void AZSTower_Preview::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	AZSPlayerController* PC = Cast<AZSPlayerController>(GetWorld()->GetFirstPlayerController());
-	if (!PC) return;
+	if (!PC)
+		return;
 
 	FVector HitLocation;
+	
 	if (PC->GetCenterHitLocation(HitLocation))
 	{
 		SetActorLocation(HitLocation);
@@ -55,10 +57,10 @@ void AZSTower_Preview::SetValid(bool bValid)
 {
 	bIsValid = bValid;
 
-	if (!PreviewMID) return;
+	if (PreviewMIDs.IsEmpty())
+		return;
 
 	FLinearColor Color = bValid ? FLinearColor::Green : FLinearColor::Red;
-//	PreviewMID->SetVectorParameterValue("M_Color", Color);
 
 	for (auto MID : PreviewMIDs)
 	{
@@ -71,6 +73,7 @@ void AZSTower_Preview::SetValid(bool bValid)
 
 void AZSTower_Preview::UpdatePosition()
 {
+	
 }
 
 void AZSTower_Preview::CheckValid()
@@ -79,6 +82,8 @@ void AZSTower_Preview::CheckValid()
 	GetOverlappingActors(Overlaps, AZSTower::StaticClass());
 
 	bIsValid = (Overlaps.Num() == 0);
+
+	SetValid(bIsValid);
 }
 
 bool AZSTower_Preview::GetValidPosition() const

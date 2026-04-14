@@ -29,9 +29,6 @@ protected:
 	UMaterialInterface* PreviewMaterial;
 	
 	UPROPERTY()
-	UMaterialInstanceDynamic* PreviewMID;
-	
-	UPROPERTY()
 	TArray<TObjectPtr<UMaterialInstanceDynamic>> PreviewMIDs;
 	
 	void SetValid(bool bValid = false);

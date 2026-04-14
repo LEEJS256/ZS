@@ -8,6 +8,7 @@
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "ZSTower.generated.h"
 
+class USphereComponent;
 class UZSPlayerDataAsset;
 UCLASS()
 class ZS_API AZSTower : public AActor
@@ -38,14 +39,23 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tower", meta=(AllowPrivateAccess="true"))
 	UStaticMeshComponent* Barrel;
+	
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent* DetectionSphere;
 
+	UPROPERTY(EditAnywhere)
+	float AttackRange = 1500.f;
+
+	UPROPERTY(EditAnywhere)
+	bool bBattle = false;
+	
+	
 private:
-	float AttackRange = 500.f;
 	float AttackCooldown = 1.0f;
 	float CurrentTime = 0.f;
 
 	void FindAndAttack();
-	void Attack(AActor* Target);
+	void Attack();
 
 	
 	UPROPERTY()
@@ -57,5 +67,11 @@ private:
 	void InitializeObjectDA();
 	void GrantDefaultGA(UZSPlayerDataAsset* Data);
 	void ApplyDefaultAttributes(UZSPlayerDataAsset* Data);
+
+	UPROPERTY()
+	AActor* LockOnTarget = nullptr;
 	
+	void FindTarget();
+	
+	void RotatingTower(float DeltaTime);
 };
