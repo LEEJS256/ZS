@@ -24,6 +24,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void Set_GE(TSubclassOf<UGameplayEffect> ParaGE,FGameplayEffectContextHandle InContext);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Projectile")
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -65,8 +68,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraSystem> ImpactVFX;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Projectile")
-	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float Damage = 10.f;

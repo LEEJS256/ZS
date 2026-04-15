@@ -3,37 +3,24 @@
 
 #include "Object/ZSProjectile_Chase.h"
 
+#include "GameFramework/ProjectileMovementComponent.h"
+
 AZSProjectile_Chase::AZSProjectile_Chase()
 {
+	ProjectileMovement->bIsHomingProjectile = true;
+	// ProjectileMovement->HomingTargetComponent = LockOnTarget->GetRootComponent();
+	ProjectileMovement->HomingAccelerationMagnitude = 10000.f; // 중요
 }
 
 void AZSProjectile_Chase::Move(float DeltaTime)
 {
 	if (!LockOnTarget)
 		return;
-
-	FVector TargetDir = (LockOnTarget->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-
-	FRotator CurrentRot = GetActorRotation();
-	FRotator TargetRot = TargetDir.Rotation();
-
-	FRotator NewRot = FMath::RInterpTo(CurrentRot, TargetRot, DeltaTime, TurnSpeed);
-
-	SetActorRotation(NewRot);
-
-	FVector Forward = GetActorForwardVector();
-	SetActorLocation(GetActorLocation() + Forward * ChaseSpeed * DeltaTime);
-	
-	// FVector CurrentForward = GetActorForwardVector();
-	// FVector TargetDir = (LockOnTarget->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-	//
-	// FVector NewDir = FMath::VInterpNormalRotationTo(CurrentForward, TargetDir, DeltaTime, TurnSpeed);
-	//
-	// SetActorRotation(NewDir.Rotation());
-	// SetActorLocation(GetActorLocation() + NewDir * ChaseSpeed * DeltaTime);
 }
 
 void AZSProjectile_Chase::SetTarget(AActor* InTarget)
 {
 	LockOnTarget = InTarget;
+	
+	ProjectileMovement->HomingTargetComponent = LockOnTarget->GetRootComponent();
 }
