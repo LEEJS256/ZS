@@ -27,7 +27,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	virtual void Move(float DeltaTime);
+	
 	UFUNCTION()
 	void OnProjectileHit(
 		UPrimitiveComponent* HitComponent,

@@ -55,6 +55,12 @@ void AZSProjectile::BeginPlay()
 	PostInitializeComponents();
 }
 
+void AZSProjectile::Move(float DeltaTime)
+{
+}
+
+
+
 void AZSProjectile::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
                                     UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -126,6 +132,8 @@ void AZSProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Move(DeltaTime);
+	
 	// DrawDebugSphere(
 	// 	GetWorld(),
 	// 	CollisionComp->GetComponentLocation(),
