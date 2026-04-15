@@ -1,0 +1,65 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GAS/GA/ZSGameplayAbility.h"
+#include "Object/ZS_bomb.h"
+#include "GA_Right_ATK.generated.h"
+
+/**
+ * 
+ */
+class UAbilityTask_WaitGameplayEvent;
+UCLASS()
+class ZS_API UGA_Right_ATK : public UZSGameplayAbility
+{
+	GENERATED_BODY()
+
+public:
+	UGA_Right_ATK();
+
+	virtual void ActivateAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		const FGameplayEventData* TriggerEventData) override;
+
+	virtual void EndAbility(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo,
+		bool bReplicateEndAbility,
+		bool bWasCancelled) override;
+
+	void FireProjectile();
+	FVector GetSpawnLocation() const;
+	FRotator GetSpawnRotationFromCrossHair();
+
+protected:
+
+	UPROPERTY(EditAnywhere)
+	TArray<FName> RightHand_Socket;
+	
+	UPROPERTY()
+	UAbilityTask_WaitGameplayEvent* EventTagTask;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "SK|Weapon|Animation|Attack")
+	TArray<TObjectPtr<UAnimMontage>> AttackMontages;
+		
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	TSubclassOf<AZS_bomb> GAProjectile;
+
+	UFUNCTION()
+	void OnMontageCompleted();
+
+	UFUNCTION()
+	void OnMontageInterrupted();
+
+	UFUNCTION()
+	void OnFireEvent(FGameplayEventData Payload);
+	
+	
+};
+
+
