@@ -59,7 +59,9 @@ void AZSPlayerCharacter::SetSprinting(bool bSprinting)
 {
 	bIsSprinting = bSprinting;
 	float WalkSpeed = AttributeSet->GetSpeed();
+	// UE_LOG(LogTemp, Warning, TEXT("SprintWeight: %f"), AttributeSet->GetSprintWeight());
 	float SprintSpeed = AttributeSet->GetSprintWeight() * WalkSpeed;
+	// UE_LOG(LogTemp, Warning, TEXT("SprintSpeed: %f"), SprintSpeed);
 	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? SprintSpeed : WalkSpeed;
 }
 

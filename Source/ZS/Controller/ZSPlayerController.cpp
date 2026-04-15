@@ -249,11 +249,9 @@ void AZSPlayerController::StartFireProjectile(const FInputActionValue& Value)
 		FGameplayEventData()
 	);
 	
-
 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 	if (!ASC)
 		return;
-
 
 	FGameplayTagContainer GATagContainer;
 	GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("ATK.Left")));
@@ -263,11 +261,6 @@ void AZSPlayerController::StartFireProjectile(const FInputActionValue& Value)
 
 void AZSPlayerController::ATK_Right(const FInputActionValue& Value)
 {
-	// AActor* Avatar = GetPawn();
-	//
-	// if (!Avatar)
-	// 	return;
-
 	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
 	if (!PS)
 		return;
@@ -276,11 +269,32 @@ void AZSPlayerController::ATK_Right(const FInputActionValue& Value)
 		TAG_Input_RightClick,
 		FGameplayEventData()
 	);
+	
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC)
+		return;
 
+	FGameplayTagContainer GATagContainer;
+	GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("ATK.Right")));
+
+	ASC->TryActivateAbilitiesByTag(GATagContainer);
 }
 
 void AZSPlayerController::ATK_Ultimate(const FInputActionValue& Value)
 {
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+	if (!PS)
+		return;
+
+	
+	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
+	if (!ASC)
+		return;
+
+	FGameplayTagContainer GATagContainer;
+	GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("ATK.Ultimate")));
+
+	ASC->TryActivateAbilitiesByTag(GATagContainer);
 }
 
 void AZSPlayerController::BuildTower(const FInputActionValue& Value)
