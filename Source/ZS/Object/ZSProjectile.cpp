@@ -44,7 +44,7 @@ AZSProjectile::AZSProjectile()
 	ProjectileMovement->ProjectileGravityScale = 0.f;
 	ProjectileMovement->bRotationFollowsVelocity = true;
 
-	InitialLifeSpan = 15.f;
+	InitialLifeSpan = LifeSeconds;
 }
 
 // Called when the game starts or when spawned
@@ -57,6 +57,7 @@ void AZSProjectile::BeginPlay()
 
 void AZSProjectile::Move(float DeltaTime)
 {
+	
 }
 
 
