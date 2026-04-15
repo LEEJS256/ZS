@@ -4,22 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "Animation/AnimNotifies/AnimNotify.h"
-#include "ZS_AnimNofifyBase.generated.h"
+#include "Animation/AnimNotify/ZS_AnimNofifyBase.h"
+#include "ZS_AnimNotify_Bomb.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ZS_API UZS_AnimNofifyBase : public UAnimNotify
+class ZS_API UZS_AnimNotify_Bomb : public UZS_AnimNofifyBase
 {
 	GENERATED_BODY()
 
-public:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	FGameplayTag EventTag;
 protected:
-	UZS_AnimNofifyBase();
-
+	UZS_AnimNotify_Bomb();
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
+
 };

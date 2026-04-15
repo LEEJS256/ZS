@@ -1,30 +1,25 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Animation/AnimNotify/ZS_AnimNofifyBase.h"
+#include "Animation/AnimNotify/ZS_AnimNotify_Bomb.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Character/ZSPlayerCharacter.h"
 #include "PlayerState/ZSPlayerState.h"
 
-UZS_AnimNofifyBase::UZS_AnimNofifyBase()
+UZS_AnimNotify_Bomb::UZS_AnimNotify_Bomb()
 {
 }
 
-void UZS_AnimNofifyBase::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
+void UZS_AnimNotify_Bomb::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation)
 {
 	Super::Notify(MeshComp, Animation);
 
-	if (!MeshComp)
-		return;
-
 	AActor* Owner = MeshComp->GetOwner();
-	if (!Owner)
-		return;
+	if (!Owner) return;
 
 	AZSPlayerCharacter* PlayerCharacter = Cast<AZSPlayerCharacter>(Owner);
-	if (!PlayerCharacter)
-		return;
+	if (!PlayerCharacter) return;
 
 	AZSPlayerState* PS = PlayerCharacter->GetPlayerState<AZSPlayerState>();
 	if (!PS)
@@ -37,4 +32,5 @@ void UZS_AnimNofifyBase::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceB
 		EventTag,
 		EventData
 	);
+	
 }

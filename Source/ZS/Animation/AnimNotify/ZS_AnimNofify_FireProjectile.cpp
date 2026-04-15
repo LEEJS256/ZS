@@ -15,16 +15,20 @@ void UZS_AnimNofify_FireProjectile::Notify(USkeletalMeshComponent* MeshComp, UAn
 {
 	Super::Notify(MeshComp, Animation);
 
-	if (!MeshComp) return;
+	if (!MeshComp)
+		return;
 
 	AActor* Owner = MeshComp->GetOwner();
-	if (!Owner) return;
+	if (!Owner)
+		return;
 
 	AZSPlayerCharacter* PlayerCharacter = Cast<AZSPlayerCharacter>(Owner);
-	if (!PlayerCharacter) return;
+	if (!PlayerCharacter)
+		return;
 
 	AZSPlayerState* PS = PlayerCharacter->GetPlayerState<AZSPlayerState>();
-	if (!PS) return;
+	if (!PS)
+		return;
 	FGameplayEventData EventData;
 	EventData.EventTag = EventTag;
 
