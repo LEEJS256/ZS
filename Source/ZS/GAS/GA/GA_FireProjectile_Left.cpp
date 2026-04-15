@@ -40,12 +40,10 @@ void UGA_FireProjectile_Left::ActivateAbility(const FGameplayAbilitySpecHandle H
 			false,
 			false //onlymatchingExact 끄기 부모태그도 가능하도록
 		);
-
+	
 	EventTagTask->EventReceived.AddDynamic(this, &UGA_FireProjectile_Left::OnFireEvent);
 	EventTagTask->ReadyForActivation();
-	// EndAbility(Handle, ActorInfo, ActivationInfo, true, false);
-	
-	
+
 	FName SectionName = FName("Default");
 
 	UAbilityTask_PlayMontageAndWait* PlayTask =
