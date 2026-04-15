@@ -135,11 +135,7 @@ FVector UGA_FireProjectile_Left::GetSpawnLocation(FGameplayTag ParaTag) const
 	{
 		SpawnLocation = MeshComp->GetSocketLocation("weapon_Fire_Right");
 	}
-	// FVector SpawnLocation =
-	// 	PlayerCharacter->GetActorLocation()
-	// 	+ PlayerCharacter->GetActorForwardVector() * SpawnOffset.X
-	// 	+ PlayerCharacter->GetActorRightVector() * SpawnOffset.Y
-	// 	+ PlayerCharacter->GetActorUpVector() * SpawnOffset.Z;
+
 	return SpawnLocation;
 }
 
@@ -160,10 +156,6 @@ FRotator UGA_FireProjectile_Left::GetSpawnRotation(int32 LeftRightNum) const
 
 	return FRotator::ZeroRotator;
 	
-	// FRotator ActorRot = AvatarActor->GetActorRotation();
-	//
-	// // Pitch, Roll 제거 (핵심)
-	// return FRotator(0.f, ActorRot.Yaw, 0.f);
 }
 
 FRotator UGA_FireProjectile_Left::GetSpawnRotationFromCrossHair(FGameplayTag ParaTag)
