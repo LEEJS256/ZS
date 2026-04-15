@@ -20,6 +20,7 @@ public:
 	AZSTower();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
+	AActor* GetLockOnTarget();
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -49,9 +50,10 @@ protected:
 	UPROPERTY(EditAnywhere)
 	bool bBattle = false;
 	
+	UPROPERTY(EditAnywhere)
+	float AttackCooldown = 3.0f;
 	
 private:
-	float AttackCooldown = 1.0f;
 	float CurrentTime = 0.f;
 
 	void FindAndAttack();

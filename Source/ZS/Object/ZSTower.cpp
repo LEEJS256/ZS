@@ -46,6 +46,11 @@ void AZSTower::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetime
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
+AActor* AZSTower::GetLockOnTarget()
+{
+	return LockOnTarget;
+}
+
 // Called when the game starts or when spawned
 void AZSTower::BeginPlay()
 {
@@ -54,6 +59,7 @@ void AZSTower::BeginPlay()
 	if (AbilitySystemComponent)
 	{
 		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		InitializeObjectDA();
 	}
 }
 
@@ -67,7 +73,7 @@ void AZSTower::Tick(float DeltaTime)
 
 	RotatingTower(DeltaTime);
 	CurrentTime += DeltaTime;
-	
+
 	if (CurrentTime >= AttackCooldown)
 	{
 		CurrentTime = 0.f;
@@ -78,12 +84,12 @@ void AZSTower::Tick(float DeltaTime)
 		GetWorld(),
 		DetectionSphere->GetComponentLocation(),
 		DetectionSphere->GetScaledSphereRadius(), // 구체는 반지름 하나면 충분합니다.
-		12,                                       // 구체를 표현할 선(세그먼트)의 개수 (보통 12~26)
+		12, // 구체를 표현할 선(세그먼트)의 개수 (보통 12~26)
 		FColor::Green,
 		false,
-		0.1f,                                     // 지속 시간
+		0.1f, // 지속 시간
 		0,
-		2.f                                       // 선 두께
+		2.f // 선 두께
 	);
 }
 
@@ -92,7 +98,7 @@ void AZSTower::FindAndAttack()
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AZSMonsterBase::StaticClass(), FoundActors);
 
-	AActor* ClosestTarget = nullptr;
+	// AActor* ClosestTarget = nullptr;
 	float MinDist = AttackRange;
 
 	for (AActor* Actor : FoundActors)
@@ -102,7 +108,7 @@ void AZSTower::FindAndAttack()
 		if (Dist < MinDist)
 		{
 			MinDist = Dist;
-			ClosestTarget = Actor;
+			// ClosestTarget = Actor;
 		}
 	}
 
@@ -116,7 +122,6 @@ void AZSTower::Attack()
 {
 	if (AbilitySystemComponent)
 	{
-		
 		FGameplayTagContainer GATagContainer;
 		GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.Tower.ATK")));
 
@@ -191,18 +196,20 @@ void AZSTower::ApplyDefaultAttributes(UZSPlayerDataAsset* Data)
 
 void AZSTower::FindTarget()
 {
+	LockOnTarget = nullptr;
+	
 	TArray<AActor*> Overlaps;
 	//DetectionSphere->GetOverlappingActors(Overlaps);
-
 	DetectionSphere->GetOverlappingActors(Overlaps, AZSMonsterBase::StaticClass());
 
 	float MinDist = FLT_MAX;
-	AActor* Target = nullptr;
+	// AActor* Target = nullptr;
 
 	for (AActor* Actor : Overlaps)
 	{
 		if (!Actor->IsA(AZSMonsterBase::StaticClass()))
 			continue; // ❗ 몬스터만 통과
+
 		float Dist = FVector::Dist(GetActorLocation(), Actor->GetActorLocation());
 
 		if (Dist < MinDist)
@@ -211,14 +218,15 @@ void AZSTower::FindTarget()
 			LockOnTarget = Actor;
 		}
 	}
-
-
 }
 
 void AZSTower::RotatingTower(float DeltaTime)
 {
 	FindTarget();
-	
+
+	if (!IsValid(LockOnTarget))
+		return; 
+
 	FRotator LookAtRot = UKismetMathLibrary::FindLookAtRotation(
 		RotatingPart->GetComponentLocation(),
 		LockOnTarget->GetActorLocation()
