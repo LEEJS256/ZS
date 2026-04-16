@@ -35,7 +35,7 @@ public:
 	void FireProjectile();
 	FVector GetSpawnLocation() const;
 	FRotator GetSpawnRotationFromCrossHair();
-
+	FVector GetTargetLocation() const;
 protected:
 
 	UPROPERTY(EditAnywhere)
@@ -50,6 +50,13 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	TSubclassOf<AZS_bomb> GAProjectile;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	float ProjectileRange = 2000.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	float ThrowAngle = 0.5f;
+
+	
 	UFUNCTION()
 	void OnMontageCompleted();
 

@@ -31,18 +31,7 @@ void UGA_Right_ATK::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		return;
 	}
 
-	EventTagTask =
-		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-			this,
-			FGameplayTag::RequestGameplayTag("Event.Bomb"),
-			nullptr,
-			false,
-			false //onlymatchingExact 끄기 부모태그도 가능하도록
-		);
 
-	EventTagTask->EventReceived.AddDynamic(this, &UGA_Right_ATK::OnFireEvent);
-	EventTagTask->ReadyForActivation();
-	
 	FName SectionName = FName("Default");
 
 	UAbilityTask_PlayMontageAndWait* PlayTask =
@@ -58,8 +47,27 @@ void UGA_Right_ATK::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 	PlayTask->OnInterrupted.AddDynamic(this, &UGA_Right_ATK::OnMontageInterrupted);
 	PlayTask->OnCancelled.AddDynamic(this, &UGA_Right_ATK::OnMontageInterrupted);
 
-	//사용 O
+	if (!AttackMontages.IsValidIndex(0) || !AttackMontages[0])
+	{
+		UE_LOG(LogTemp, Error, TEXT("Montage NULL"));
+		return;
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Montage Play Try: %s"), *GetNameSafe(AttackMontages[0]));
 	PlayTask->ReadyForActivation();
+
+	EventTagTask =
+		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+			this,
+			FGameplayTag::RequestGameplayTag("Event.Bomb.Active"),
+			// nullptr,
+			ActorInfo->OwnerActor.Get(),
+			false,
+			false 
+		);
+
+	EventTagTask->EventReceived.AddDynamic(this, &UGA_Right_ATK::OnFireEvent);
+	EventTagTask->ReadyForActivation();
 }
 
 void UGA_Right_ATK::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -74,7 +82,7 @@ void UGA_Right_ATK::FireProjectile()
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
 	if (!IsValid(AvatarActor))
 		return;
-
+	
 	AZSPlayerCharacter* PlayerCharacter = Cast<AZSPlayerCharacter>(AvatarActor);
 	if (!IsValid(PlayerCharacter))
 		return;
@@ -89,6 +97,9 @@ void UGA_Right_ATK::FireProjectile()
 	const FVector SpawnLocation = GetSpawnLocation();
 	const FRotator SpawnRotation = GetSpawnRotationFromCrossHair();
 
+	FVector Forward = GetAvatarActorFromActorInfo()->GetActorForwardVector();
+	FVector TargetPos = SpawnLocation + (Forward * ProjectileRange); // 
+	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = PlayerCharacter;
 	SpawnParams.Instigator = PlayerCharacter;
@@ -105,12 +116,14 @@ void UGA_Right_ATK::FireProjectile()
 		return;
 
 	UAbilitySystemComponent* ASC = GetAbilitySystemComponentFromActorInfo();
-	if (!ASC) return;
+	if (!ASC)
+		return;
 
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
 	Context.AddSourceObject(this);
 
 	// Projectile->Set_GE(DamageEffectClass,Context);
+	Projectile->InitProjectile(SpawnLocation,TargetPos,ThrowAngle);
 }
 
 FVector UGA_Right_ATK::GetSpawnLocation() const
@@ -137,8 +150,10 @@ FRotator UGA_Right_ATK::GetSpawnRotationFromCrossHair()
 	FRotator CameraRot;
 	PC->GetPlayerViewPoint(CameraLoc, CameraRot);
 
+	//카메라 위치에서 카메라방향으로 10000유닛쏴서 끝지점 생성
 	FVector TraceEnd = CameraLoc + (CameraRot.Vector() * 10000.f);
 
+	//라인트레이스 준비
 	FHitResult Hit;
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(GetAvatarActorFromActorInfo());
@@ -151,11 +166,45 @@ FRotator UGA_Right_ATK::GetSpawnRotationFromCrossHair()
 		Params
 	);
 
+	//맞았으면 맞은 위치, 안맞았으면 그저 먼지지점
 	FVector TargetLocation = bHit ? Hit.ImpactPoint : TraceEnd;
 
 	FVector MuzzleLocation = GetSpawnLocation();
 
 	return (TargetLocation - MuzzleLocation).Rotation();
+}
+
+FVector UGA_Right_ATK::GetTargetLocation() const
+{
+	FVector TargetLoca ;
+
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC)
+		return TargetLoca;
+
+	FVector CameraLoc;
+	FRotator CameraRot;
+	PC->GetPlayerViewPoint(CameraLoc, CameraRot);
+
+	//카메라 위치에서 카메라방향으로 10000유닛쏴서 끝지점 생성
+	FVector TraceEnd = CameraLoc + (CameraRot.Vector() * 10000.f);
+
+	//라인트레이스 준비
+	FHitResult Hit;
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(GetAvatarActorFromActorInfo());
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(
+		Hit,
+		CameraLoc,
+		TraceEnd,
+		ECC_Visibility,
+		Params
+	);
+
+	TargetLoca = bHit ? Hit.ImpactPoint : TraceEnd;
+
+	return TargetLoca;
 }
 
 void UGA_Right_ATK::OnMontageCompleted()
@@ -183,4 +232,9 @@ void UGA_Right_ATK::OnMontageInterrupted()
 void UGA_Right_ATK::OnFireEvent(FGameplayEventData Payload)
 {
 	FireProjectile();
+
+	if (EventTagTask)
+	{
+		EventTagTask->EndTask(); // 🔥 이벤트 더 이상 못 받음
+	}
 }
