@@ -10,19 +10,26 @@
 #include "NiagaraFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AZS_bomb::AZS_bomb()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	BombMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BombMesh"));
-	SetRootComponent(BombMeshComp);
-	
+	// BombMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BombMesh"));
+	// SetRootComponent(BombMeshComp);
+	//
+	// CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
+	// CollisionComp->SetupAttachment(BombMeshComp);
+
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
-	// SetRootComponent(CollisionComp);
-	CollisionComp->SetupAttachment(BombMeshComp);
+	SetRootComponent(CollisionComp);
+
+	BombMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BombMesh"));
+	BombMeshComp->SetupAttachment(CollisionComp);
+	BombMeshComp->SetSimulatePhysics(false);
 
 	CollisionComp->InitSphereRadius(16.f);
 	CollisionComp->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
@@ -32,7 +39,7 @@ AZS_bomb::AZS_bomb()
 
 	CollisionComp->SetGenerateOverlapEvents(true);
 	CollisionComp->SetUseCCD(true);
-	
+
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(
 		this,
 		&AZS_bomb::OnOverlap
@@ -45,17 +52,62 @@ AZS_bomb::AZS_bomb()
 	ProjectileMovement->UpdatedComponent = CollisionComp;
 	ProjectileMovement->InitialSpeed = ProjectileSpeed;
 	ProjectileMovement->MaxSpeed = ProjectileSpeedMax;
-	ProjectileMovement->ProjectileGravityScale = 1.f; //중력!!
+	ProjectileMovement->ProjectileGravityScale = 2.5f; //중력!!
 	ProjectileMovement->bRotationFollowsVelocity = true;
 
 	InitialLifeSpan = LifeSeconds;
-	
+}
+
+void AZS_bomb::InitProjectile(FVector InStart, FVector InTarget, float ThrowAngle)
+{
+	FVector LaunchVelocity;
+
+	// bool bSuccess = UGameplayStatics::SuggestProjectileVelocity(
+	// 	this,
+	// 	LaunchVelocity,
+	// 	InStart,
+	// 	InTarget,
+	// 	3000.f,
+	// 	false,
+	// 	0.f,
+	// 	0.f,
+	// 	ESuggestProjVelocityTraceOption::DoNotTrace
+	// );
+
+	UE_LOG(LogTemp, Warning, TEXT("Velocity: %s"), *LaunchVelocity.ToString());
+
+	bool bSuccess = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
+		this,
+		LaunchVelocity,
+		InStart,
+		InTarget,
+		0.f, // 중력 override (0이면 기본 중력 사용)
+		ThrowAngle
+	);
+
+	if (bSuccess)
+	{
+		FVector NewVelocity = LaunchVelocity;
+
+		// NewVelocity.X *= VelocityWeight;
+		// NewVelocity.Y *= VelocityWeight;
+
+		ProjectileMovement->Velocity = NewVelocity;
+
+		// ProjectileMovement->Velocity = LaunchVelocity * VelocityWeight;
+	}
 }
 
 // Called when the game starts or when spawned
 void AZS_bomb::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SpinRate = FRotator(
+		FMath::RandRange(-600.f, 600.f),
+		FMath::RandRange(-600.f, 600.f),
+		FMath::RandRange(-600.f, 600.f)
+	);
 
 	PostInitializeComponents();
 }
@@ -71,7 +123,7 @@ void AZS_bomb::Set_GE(TSubclassOf<UGameplayEffect> ParaGE, FGameplayEffectContex
 }
 
 void AZS_bomb::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
+                               FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (!OtherActor || OtherActor == GetOwner())
 		return;
@@ -82,7 +134,7 @@ void AZS_bomb::OnProjectileHit(UPrimitiveComponent* HitComponent, AActor* OtherA
 }
 
 void AZS_bomb::OnOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                         int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!OtherActor || OtherActor == GetOwner())
 		return;
@@ -106,7 +158,8 @@ void AZS_bomb::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Move(DeltaTime);
+	AddActorLocalRotation(SpinRate * DeltaTime);
+	// Move(DeltaTime);
 }
 
 void AZS_bomb::SpantImpact()
@@ -135,7 +188,6 @@ void AZS_bomb::ApplyDamageToTarget(AActor* TargetActor)
 	TargetASC->ApplyGameplayEffectToSelf(
 		DamageEffect->GetDefaultObject<UGameplayEffect>(),
 		1.f,
-		EffectContext 
+		EffectContext
 	);
 }
-

@@ -12,6 +12,8 @@ class USphereComponent;
 class UProjectileMovementComponent;
 class UNiagaraSystem;
 class UNiagaraComponent;
+
+
 UCLASS()
 class ZS_API AZS_bomb : public AActor
 {
@@ -21,16 +23,17 @@ public:
 	// Sets default values for this actor's properties
 	AZS_bomb();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Projectile")
+	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
+
+	void InitProjectile(FVector InStart, FVector InTarget,float ThrowAngle);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Move(float DeltaTime);
 	
 	void Set_GE(TSubclassOf<UGameplayEffect> ParaGE,FGameplayEffectContextHandle InContext);
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Projectile")
-	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
-
+	
 	UFUNCTION()
 	void OnProjectileHit(
 		UPrimitiveComponent* HitComponent,
@@ -85,4 +88,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float ProjectileSpeedMax = 2000.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	float VelocityWeight = 1.8f;
+
+	FRotator SpinRate;
 };
