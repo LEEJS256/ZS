@@ -49,4 +49,5 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Fire, "Event.Fire");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Fire_Left, "Event.Fire.Left");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Fire_Right, "Event.Fire.Right");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Bomd, "Event.Bomd");
+UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Bomd_Active, "Event.Bomd.Active");
 UE_DEFINE_GAMEPLAY_TAG(TAG_Event_Ultmate, "Event.Ultmate");
