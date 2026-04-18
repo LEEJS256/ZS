@@ -7,6 +7,8 @@
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/ZSPlayerCharacter.h"
 #include "Object/ZS_bomb.h"
+#include "PlayerState/ZSPlayerState.h"
+#include "Utility/ZSNativeGameplayTag.h"
 
 UGA_Right_ATK::UGA_Right_ATK()
 {
@@ -68,6 +70,13 @@ void UGA_Right_ATK::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 
 	EventTagTask->EventReceived.AddDynamic(this, &UGA_Right_ATK::OnFireEvent);
 	EventTagTask->ReadyForActivation();
+
+	AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
+	AZSPlayerState* PS = Character->GetPlayerState<AZSPlayerState>();
+	if (PS)
+	{
+		PS->GrantStateTag(TAG_State_ATK);
+	}
 }
 
 void UGA_Right_ATK::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -75,6 +84,13 @@ void UGA_Right_ATK::EndAbility(const FGameplayAbilitySpecHandle Handle, const FG
                                bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
+	AZSPlayerState* PS = Character->GetPlayerState<AZSPlayerState>();
+	if (PS)
+	{
+		PS->GrantStateTag(TAG_State_Idle);
+	}
 }
 
 void UGA_Right_ATK::FireProjectile()

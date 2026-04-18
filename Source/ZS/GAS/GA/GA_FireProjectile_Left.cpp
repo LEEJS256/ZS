@@ -6,6 +6,7 @@
 #include "Character/ZSPlayerCharacter.h"
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Object/ZSProjectile.h"
+#include "PlayerState/ZSPlayerState.h"
 #include "Utility/ZSNativeGameplayTag.h"
 
 UGA_FireProjectile_Left::UGA_FireProjectile_Left()
@@ -61,6 +62,13 @@ void UGA_FireProjectile_Left::ActivateAbility(const FGameplayAbilitySpecHandle H
 
 	//사용 O
 	PlayTask->ReadyForActivation();
+
+	AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
+	AZSPlayerState* PS = Character->GetPlayerState<AZSPlayerState>();
+	if (PS)
+	{
+		PS->GrantStateTag(TAG_State_ATK);
+	}
 }
 
 void UGA_FireProjectile_Left::EndAbility(const FGameplayAbilitySpecHandle Handle,
@@ -69,6 +77,13 @@ void UGA_FireProjectile_Left::EndAbility(const FGameplayAbilitySpecHandle Handle
                                          bool bReplicateEndAbility, bool bWasCancelled)
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
+
+	AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
+	AZSPlayerState* PS = Character->GetPlayerState<AZSPlayerState>();
+	if (PS)
+	{
+		PS->GrantStateTag(TAG_State_Idle);
+	}
 }
 
 void UGA_FireProjectile_Left::FireProjectile(FGameplayTag ParaTag)
