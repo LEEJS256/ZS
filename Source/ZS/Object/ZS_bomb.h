@@ -26,7 +26,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Projectile")
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovement;
 
+	TObjectPtr<UProjectileMovementComponent> Get_ProjectileComponent();
 	void InitProjectile(FVector InStart, FVector InTarget,float ThrowAngle);
+	void InitProjectile_Velocity(FVector LaunchVelocity);
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -54,6 +56,9 @@ protected:
 	virtual void PostInitializeComponents() override;
 	
 public:	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Projectile")
+	TObjectPtr<USphereComponent> CollisionComp;
+	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -70,8 +75,6 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tower", meta=(AllowPrivateAccess="true"))
 	UStaticMeshComponent* BombMeshComp;
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Projectile")
-	TObjectPtr<USphereComponent> CollisionComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UNiagaraComponent> NiagaraComp;

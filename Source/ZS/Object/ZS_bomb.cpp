@@ -17,13 +17,7 @@ AZS_bomb::AZS_bomb()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	// BombMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BombMesh"));
-	// SetRootComponent(BombMeshComp);
-	//
-	// CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
-	// CollisionComp->SetupAttachment(BombMeshComp);
-
+	
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 	SetRootComponent(CollisionComp);
 
@@ -52,28 +46,21 @@ AZS_bomb::AZS_bomb()
 	ProjectileMovement->UpdatedComponent = CollisionComp;
 	ProjectileMovement->InitialSpeed = ProjectileSpeed;
 	ProjectileMovement->MaxSpeed = ProjectileSpeedMax;
-	ProjectileMovement->ProjectileGravityScale = 2.5f; //중력!!
+	ProjectileMovement->ProjectileGravityScale = 1.0f; //중력!!
 	ProjectileMovement->bRotationFollowsVelocity = true;
 
 	InitialLifeSpan = LifeSeconds;
 }
 
+TObjectPtr<UProjectileMovementComponent> AZS_bomb::Get_ProjectileComponent()
+{
+	return ProjectileMovement;
+}
+
 void AZS_bomb::InitProjectile(FVector InStart, FVector InTarget, float ThrowAngle)
 {
 	FVector LaunchVelocity;
-
-	// bool bSuccess = UGameplayStatics::SuggestProjectileVelocity(
-	// 	this,
-	// 	LaunchVelocity,
-	// 	InStart,
-	// 	InTarget,
-	// 	3000.f,
-	// 	false,
-	// 	0.f,
-	// 	0.f,
-	// 	ESuggestProjVelocityTraceOption::DoNotTrace
-	// );
-
+	
 	UE_LOG(LogTemp, Warning, TEXT("Velocity: %s"), *LaunchVelocity.ToString());
 
 	bool bSuccess = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
@@ -96,6 +83,19 @@ void AZS_bomb::InitProjectile(FVector InStart, FVector InTarget, float ThrowAngl
 
 		// ProjectileMovement->Velocity = LaunchVelocity * VelocityWeight;
 	}
+}
+
+void AZS_bomb::InitProjectile_Velocity(FVector LaunchVelocity)
+{
+	if (!ProjectileMovement)
+		return;
+
+	ProjectileMovement->StopMovementImmediately();
+
+	ProjectileMovement->Velocity = LaunchVelocity;
+	ProjectileMovement->UpdateComponentVelocity();
+
+	ProjectileMovement->Activate(true);
 }
 
 // Called when the game starts or when spawned
