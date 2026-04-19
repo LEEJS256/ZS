@@ -11,6 +11,7 @@
 class UZSAttributeSet;
 class UZS_playerHudWidget;
 class UZS_Crosshair;
+class UZSPreviewComponent;
 UCLASS()
 class ZS_API AZSPlayerCharacter : public ACharacter
 {
@@ -31,8 +32,11 @@ public:
 #pragma region CommonFunction
 	void SetSprinting(bool bSprinting);
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UZSPreviewComponent* PreviewComponent;
 #pragma  endregion
 
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
