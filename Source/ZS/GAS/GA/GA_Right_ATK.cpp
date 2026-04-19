@@ -6,6 +6,8 @@
 #include "Abilities/Tasks/AbilityTask_PlayMontageAndWait.h"
 #include "Abilities/Tasks/AbilityTask_WaitGameplayEvent.h"
 #include "Character/ZSPlayerCharacter.h"
+#include "Component/ZSPreviewComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Object/ZS_bomb.h"
 #include "PlayerState/ZSPlayerState.h"
 #include "Utility/ZSNativeGameplayTag.h"
@@ -13,6 +15,8 @@
 UGA_Right_ATK::UGA_Right_ATK()
 {
 	AbilityTags.AddTag(FGameplayTag::RequestGameplayTag(FName("ATK.Right")));
+	InstancingPolicy = EGameplayAbilityInstancingPolicy::InstancedPerActor;
+	bRetriggerInstancedAbility = true;
 }
 
 void UGA_Right_ATK::ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
@@ -32,50 +36,49 @@ void UGA_Right_ATK::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 		EndAbility(Handle, ActorInfo, ActivationInfo, true, true);
 		return;
 	}
+	ActivationOwnedTags.AddTag(TAG_State_ATK);
 
-
-	FName SectionName = FName("Default");
-
-	UAbilityTask_PlayMontageAndWait* PlayTask =
-		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
-			this,
-			NAME_None,
-			AttackMontages[0],
-			1.0f,
-			SectionName
-		);
-
-	PlayTask->OnCompleted.AddDynamic(this, &UGA_Right_ATK::OnMontageCompleted);
-	PlayTask->OnInterrupted.AddDynamic(this, &UGA_Right_ATK::OnMontageInterrupted);
-	PlayTask->OnCancelled.AddDynamic(this, &UGA_Right_ATK::OnMontageInterrupted);
-
-	if (!AttackMontages.IsValidIndex(0) || !AttackMontages[0])
+	if (!bIsAiming)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Montage NULL"));
+		bIsAiming = true;
+		
+		AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
+		if (Character && Character->PreviewComponent)
+		{
+			// FTrajectoryParams Params;
+			// Params.StartLocation = GetSpawnLocation();
+			// Params.LaunchVelocity = (GetTargetLocation() - Params.StartLocation).GetSafeNormal() * ProjectileSpeed;
+			// Params.Radius = 5.f;
+			
+			Character->PreviewComponent->StartPreview_RightGA(this);
+		}
+
 		return;
+		
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Montage Play Try: %s"), *GetNameSafe(AttackMontages[0]));
-	PlayTask->ReadyForActivation();
-
-	EventTagTask =
-		UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
-			this,
-			FGameplayTag::RequestGameplayTag("Event.Bomb.Active"),
-			// nullptr,
-			ActorInfo->OwnerActor.Get(),
-			false,
-			false 
-		);
-
-	EventTagTask->EventReceived.AddDynamic(this, &UGA_Right_ATK::OnFireEvent);
-	EventTagTask->ReadyForActivation();
-
-	AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
-	AZSPlayerState* PS = Character->GetPlayerState<AZSPlayerState>();
-	if (PS)
+	else
 	{
-		PS->GrantStateTag(TAG_State_ATK);
+		bIsAiming = false;
+		PlayMontage();
+		
+		AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
+		if (Character && Character->PreviewComponent)
+		{
+			Character->PreviewComponent->StopPreview();
+		}
+
+		EventTagTask =
+			UAbilityTask_WaitGameplayEvent::WaitGameplayEvent(
+				this,
+				FGameplayTag::RequestGameplayTag("Event.Bomb.Active"),
+				// nullptr,
+				ActorInfo->OwnerActor.Get(),
+				false,
+				false 
+			);
+		
+		EventTagTask->EventReceived.AddDynamic(this, &UGA_Right_ATK::OnFireEvent);
+		EventTagTask->ReadyForActivation();
 	}
 }
 
@@ -85,12 +88,34 @@ void UGA_Right_ATK::EndAbility(const FGameplayAbilitySpecHandle Handle, const FG
 {
 	Super::EndAbility(Handle, ActorInfo, ActivationInfo, bReplicateEndAbility, bWasCancelled);
 
+	ActivationOwnedTags.AddTag(TAG_State_Idle);
+
 	AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
-	AZSPlayerState* PS = Character->GetPlayerState<AZSPlayerState>();
-	if (PS)
+
+	if (Character && Character->PreviewComponent)
 	{
-		PS->GrantStateTag(TAG_State_Idle);
+		Character->PreviewComponent->StopPreview();
 	}
+	
+}
+
+void UGA_Right_ATK::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
+	const FGameplayAbilityActivationInfo ActivationInfo)
+{
+	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
+
+	// AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
+	//
+	// if (Character && Character->PreviewComponent)
+	// {
+	// 	Character->PreviewComponent->StopPreview();
+	// }
+	//
+	// FireProjectile();
+	//
+	// PlayMontage();
+
+	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
 
 void UGA_Right_ATK::FireProjectile()
@@ -113,8 +138,9 @@ void UGA_Right_ATK::FireProjectile()
 	const FVector SpawnLocation = GetSpawnLocation();
 	const FRotator SpawnRotation = GetSpawnRotationFromCrossHair();
 
-	FVector Forward = GetAvatarActorFromActorInfo()->GetActorForwardVector();
-	FVector TargetPos = SpawnLocation + (Forward * ProjectileRange); // 
+	//FVector Forward = GetAvatarActorFromActorInfo()->GetActorForwardVector();
+	// FVector TargetPos = SpawnLocation + (Forward * ProjectileRange); // 
+	FVector TargetPos = GetTargetLocation();
 	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = PlayerCharacter;
@@ -137,9 +163,38 @@ void UGA_Right_ATK::FireProjectile()
 
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
 	Context.AddSourceObject(this);
+	
+	FVector LaunchVelocity = CalculateLaunchVelocity(SpawnLocation, TargetPos);
+	Projectile->InitProjectile_Velocity(LaunchVelocity);
 
-	// Projectile->Set_GE(DamageEffectClass,Context);
-	Projectile->InitProjectile(SpawnLocation,TargetPos,ThrowAngle);
+}
+
+void UGA_Right_ATK::PlayMontage()
+{
+
+	FName SectionName = FName("Default");
+	
+	UAbilityTask_PlayMontageAndWait* PlayTask =
+		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
+			this,
+			NAME_None,
+			AttackMontages[0],
+			1.0f,
+			SectionName
+		);
+	
+	PlayTask->OnCompleted.AddDynamic(this, &UGA_Right_ATK::OnMontageCompleted);
+	PlayTask->OnInterrupted.AddDynamic(this, &UGA_Right_ATK::OnMontageInterrupted);
+	PlayTask->OnCancelled.AddDynamic(this, &UGA_Right_ATK::OnMontageInterrupted);
+	
+	if (!AttackMontages.IsValidIndex(0) || !AttackMontages[0])
+	{
+		UE_LOG(LogTemp, Error, TEXT("Montage NULL"));
+		return;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Montage Play Try: %s"), *GetNameSafe(AttackMontages[0]));
+	PlayTask->ReadyForActivation();
 }
 
 FVector UGA_Right_ATK::GetSpawnLocation() const
@@ -223,6 +278,35 @@ FVector UGA_Right_ATK::GetTargetLocation() const
 	return TargetLoca;
 }
 
+FVector UGA_Right_ATK::CalculateLaunchVelocity(const FVector& Start, const FVector& Target)
+{
+	FVector LaunchVelocity;
+
+	float GravityZ = GetWorld()->GetGravityZ() * 1.0f; 
+		
+	bool bSuccess = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
+		GetWorld(),
+		LaunchVelocity,
+		Start,
+		Target,
+		GravityZ,  
+		0.5f   // 0~1 (낮은 포물선 ~ 높은 포물선)
+	);
+
+	if (!bSuccess)
+	{
+		return FVector::ZeroVector;
+	}
+
+	return LaunchVelocity;
+
+}
+
+TSubclassOf<AZS_bomb> UGA_Right_ATK::GetProjectileClass() const
+{
+	return GAProjectile;
+}
+
 void UGA_Right_ATK::OnMontageCompleted()
 {
 	EndAbility(
@@ -251,6 +335,6 @@ void UGA_Right_ATK::OnFireEvent(FGameplayEventData Payload)
 
 	if (EventTagTask)
 	{
-		EventTagTask->EndTask(); // 🔥 이벤트 더 이상 못 받음
+		EventTagTask->EndTask();
 	}
 }

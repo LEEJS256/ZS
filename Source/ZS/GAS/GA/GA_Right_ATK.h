@@ -32,10 +32,23 @@ public:
 		bool bReplicateEndAbility,
 		bool bWasCancelled) override;
 
+	virtual void InputReleased(
+		const FGameplayAbilitySpecHandle Handle,
+		const FGameplayAbilityActorInfo* ActorInfo,
+		const FGameplayAbilityActivationInfo ActivationInfo) override;
+	
 	void FireProjectile();
+	void PlayMontage();
 	FVector GetSpawnLocation() const;
 	FRotator GetSpawnRotationFromCrossHair();
 	FVector GetTargetLocation() const;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	float ProjectileSpeed = 1500.f;
+
+	FVector CalculateLaunchVelocity(const FVector& Start, const FVector& Target);
+
+	TSubclassOf<AZS_bomb> GetProjectileClass() const;
 protected:
 
 	UPROPERTY(EditAnywhere)
@@ -53,6 +66,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float ProjectileRange = 2000.f;
 
+
+	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float ThrowAngle = 0.5f;
 
@@ -65,7 +80,8 @@ protected:
 
 	UFUNCTION()
 	void OnFireEvent(FGameplayEventData Payload);
-	
+
+	bool bIsAiming = false;
 	
 };
 
