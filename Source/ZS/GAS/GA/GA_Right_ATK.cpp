@@ -41,7 +41,7 @@ void UGA_Right_ATK::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 	if (!bIsAiming)
 	{
 		bIsAiming = true;
-		
+
 		AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
 		if (Character && Character->PreviewComponent)
 		{
@@ -49,18 +49,17 @@ void UGA_Right_ATK::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 			// Params.StartLocation = GetSpawnLocation();
 			// Params.LaunchVelocity = (GetTargetLocation() - Params.StartLocation).GetSafeNormal() * ProjectileSpeed;
 			// Params.Radius = 5.f;
-			
+
 			Character->PreviewComponent->StartPreview_RightGA(this);
 		}
 
 		return;
-		
 	}
 	else
 	{
 		bIsAiming = false;
 		PlayMontage();
-		
+
 		AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
 		if (Character && Character->PreviewComponent)
 		{
@@ -74,9 +73,9 @@ void UGA_Right_ATK::ActivateAbility(const FGameplayAbilitySpecHandle Handle, con
 				// nullptr,
 				ActorInfo->OwnerActor.Get(),
 				false,
-				false 
+				false
 			);
-		
+
 		EventTagTask->EventReceived.AddDynamic(this, &UGA_Right_ATK::OnFireEvent);
 		EventTagTask->ReadyForActivation();
 	}
@@ -96,24 +95,13 @@ void UGA_Right_ATK::EndAbility(const FGameplayAbilitySpecHandle Handle, const FG
 	{
 		Character->PreviewComponent->StopPreview();
 	}
-	
 }
 
 void UGA_Right_ATK::InputReleased(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo,
-	const FGameplayAbilityActivationInfo ActivationInfo)
+                                  const FGameplayAbilityActivationInfo ActivationInfo)
 {
 	Super::InputReleased(Handle, ActorInfo, ActivationInfo);
-
-	// AZSPlayerCharacter* Character = Cast<AZSPlayerCharacter>(GetAvatarActorFromActorInfo());
-	//
-	// if (Character && Character->PreviewComponent)
-	// {
-	// 	Character->PreviewComponent->StopPreview();
-	// }
-	//
-	// FireProjectile();
-	//
-	// PlayMontage();
+	
 
 	EndAbility(Handle, ActorInfo, ActivationInfo, false, false);
 }
@@ -123,7 +111,7 @@ void UGA_Right_ATK::FireProjectile()
 	AActor* AvatarActor = GetAvatarActorFromActorInfo();
 	if (!IsValid(AvatarActor))
 		return;
-	
+
 	AZSPlayerCharacter* PlayerCharacter = Cast<AZSPlayerCharacter>(AvatarActor);
 	if (!IsValid(PlayerCharacter))
 		return;
@@ -138,10 +126,8 @@ void UGA_Right_ATK::FireProjectile()
 	const FVector SpawnLocation = GetSpawnLocation();
 	const FRotator SpawnRotation = GetSpawnRotationFromCrossHair();
 
-	//FVector Forward = GetAvatarActorFromActorInfo()->GetActorForwardVector();
-	// FVector TargetPos = SpawnLocation + (Forward * ProjectileRange); // 
 	FVector TargetPos = GetTargetLocation();
-	
+
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = PlayerCharacter;
 	SpawnParams.Instigator = PlayerCharacter;
@@ -163,17 +149,17 @@ void UGA_Right_ATK::FireProjectile()
 
 	FGameplayEffectContextHandle Context = ASC->MakeEffectContext();
 	Context.AddSourceObject(this);
-	
+
 	FVector LaunchVelocity = CalculateLaunchVelocity(SpawnLocation, TargetPos);
 	Projectile->InitProjectile_Velocity(LaunchVelocity);
 
+	Projectile->Set_GE(DamageEffectClass, Context);
 }
 
 void UGA_Right_ATK::PlayMontage()
 {
-
 	FName SectionName = FName("Default");
-	
+
 	UAbilityTask_PlayMontageAndWait* PlayTask =
 		UAbilityTask_PlayMontageAndWait::CreatePlayMontageAndWaitProxy(
 			this,
@@ -182,17 +168,17 @@ void UGA_Right_ATK::PlayMontage()
 			1.0f,
 			SectionName
 		);
-	
+
 	PlayTask->OnCompleted.AddDynamic(this, &UGA_Right_ATK::OnMontageCompleted);
 	PlayTask->OnInterrupted.AddDynamic(this, &UGA_Right_ATK::OnMontageInterrupted);
 	PlayTask->OnCancelled.AddDynamic(this, &UGA_Right_ATK::OnMontageInterrupted);
-	
+
 	if (!AttackMontages.IsValidIndex(0) || !AttackMontages[0])
 	{
 		UE_LOG(LogTemp, Error, TEXT("Montage NULL"));
 		return;
 	}
-	
+
 	UE_LOG(LogTemp, Warning, TEXT("Montage Play Try: %s"), *GetNameSafe(AttackMontages[0]));
 	PlayTask->ReadyForActivation();
 }
@@ -247,7 +233,7 @@ FRotator UGA_Right_ATK::GetSpawnRotationFromCrossHair()
 
 FVector UGA_Right_ATK::GetTargetLocation() const
 {
-	FVector TargetLoca ;
+	FVector TargetLoca;
 
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC)
@@ -282,15 +268,15 @@ FVector UGA_Right_ATK::CalculateLaunchVelocity(const FVector& Start, const FVect
 {
 	FVector LaunchVelocity;
 
-	float GravityZ = GetWorld()->GetGravityZ() * 1.0f; 
-		
+	float GravityZ = GetWorld()->GetGravityZ() * 1.0f;
+
 	bool bSuccess = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
 		GetWorld(),
 		LaunchVelocity,
 		Start,
 		Target,
-		GravityZ,  
-		0.5f   // 0~1 (낮은 포물선 ~ 높은 포물선)
+		GravityZ,
+		0.5f // 0~1 (낮은 포물선 ~ 높은 포물선)
 	);
 
 	if (!bSuccess)
@@ -299,7 +285,6 @@ FVector UGA_Right_ATK::CalculateLaunchVelocity(const FVector& Start, const FVect
 	}
 
 	return LaunchVelocity;
-
 }
 
 TSubclassOf<AZS_bomb> UGA_Right_ATK::GetProjectileClass() const

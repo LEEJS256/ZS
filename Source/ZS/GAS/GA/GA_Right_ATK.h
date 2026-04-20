@@ -67,6 +67,9 @@ protected:
 	float ProjectileRange = 2000.f;
 
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
+	TSubclassOf<UGameplayEffect> DamageEffectClass;
+
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float ThrowAngle = 0.5f;
