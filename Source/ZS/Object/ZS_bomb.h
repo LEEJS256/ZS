@@ -29,12 +29,14 @@ public:
 	TObjectPtr<UProjectileMovementComponent> Get_ProjectileComponent();
 	void InitProjectile(FVector InStart, FVector InTarget,float ThrowAngle);
 	void InitProjectile_Velocity(FVector LaunchVelocity);
+
+	void Set_GE(TSubclassOf<UGameplayEffect> ParaGE,FGameplayEffectContextHandle InContext);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	virtual void Move(float DeltaTime);
 	
-	void Set_GE(TSubclassOf<UGameplayEffect> ParaGE,FGameplayEffectContextHandle InContext);
 	
 	UFUNCTION()
 	void OnProjectileHit(
@@ -62,6 +64,18 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void Explode();
+	void Apply_RadialDamage();
+
+	UFUNCTION()
+	void OnHit(
+		UPrimitiveComponent* HitComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		FVector NormalImpulse,
+		const FHitResult& Hit
+	);
+	
 protected:
 	void SpantImpact();
 	
@@ -80,7 +94,7 @@ protected:
 	TObjectPtr<UNiagaraComponent> NiagaraComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	TObjectPtr<UNiagaraSystem> ImpactVFX;
+	TObjectPtr<UNiagaraSystem> ExplosionEffect;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float LifeSeconds = 5.f;
@@ -94,5 +108,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float VelocityWeight = 1.8f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	float Explosion_Radius = 300.f;
+
+	
 	FRotator SpinRate;
 };

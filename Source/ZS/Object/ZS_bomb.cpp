@@ -9,6 +9,7 @@
 #include "NiagaraComponent.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Components/SphereComponent.h"
+#include "Engine/OverlapResult.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -17,7 +18,7 @@ AZS_bomb::AZS_bomb()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
 	SetRootComponent(CollisionComp);
 
@@ -33,6 +34,7 @@ AZS_bomb::AZS_bomb()
 
 	CollisionComp->SetGenerateOverlapEvents(true);
 	CollisionComp->SetUseCCD(true);
+
 
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(
 		this,
@@ -60,7 +62,7 @@ TObjectPtr<UProjectileMovementComponent> AZS_bomb::Get_ProjectileComponent()
 void AZS_bomb::InitProjectile(FVector InStart, FVector InTarget, float ThrowAngle)
 {
 	FVector LaunchVelocity;
-	
+
 	UE_LOG(LogTemp, Warning, TEXT("Velocity: %s"), *LaunchVelocity.ToString());
 
 	bool bSuccess = UGameplayStatics::SuggestProjectileVelocity_CustomArc(
@@ -149,7 +151,8 @@ void AZS_bomb::PostInitializeComponents()
 	Super::PostInitializeComponents();
 	if (CollisionComp)
 	{
-		CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AZS_bomb::OnOverlap);
+		// CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AZS_bomb::OnOverlap);
+		CollisionComp->OnComponentHit.AddDynamic(this, &AZS_bomb::OnHit);
 	}
 }
 
@@ -162,20 +165,114 @@ void AZS_bomb::Tick(float DeltaTime)
 	// Move(DeltaTime);
 }
 
+void AZS_bomb::Explode()
+{
+	if (ExplosionEffect)
+	{
+		FVector Scale = FVector(1.0f);
+
+		UNiagaraComponent* NewExplosion =
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+				GetWorld(),
+				ExplosionEffect,
+				GetActorLocation(),
+				FRotator::ZeroRotator,
+				Scale
+			);
+		if (NewExplosion)
+		{
+			float size = 2.0f;
+			
+			NewExplosion->SetVariableFloat(TEXT("User.Size"), size);
+			NewExplosion->SetVariableFloat(TEXT("User.SpawnRate"), size);
+			NewExplosion->SetVariableFloat(TEXT("User.SpawnSize"), size);
+		}
+	}
+
+	DrawDebugSphere(
+		GetWorld(),
+		GetActorLocation(),
+		Explosion_Radius,
+		32,
+		FColor::Red,
+		false,
+		2.0f,
+		0,
+		2.0f // 두께
+	);
+
+	// 2. 범위 데미지
+	Apply_RadialDamage();
+
+	// 3. 자기 삭제
+	Destroy();
+}
+
+void AZS_bomb::Apply_RadialDamage()
+{
+	TArray<FOverlapResult> Overlaps;
+
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(Explosion_Radius);
+
+	GetWorld()->OverlapMultiByChannel(
+		Overlaps,
+		GetActorLocation(),
+		FQuat::Identity,
+		ECC_Pawn,
+		Sphere
+	);
+
+	for (auto& Result : Overlaps)
+	{
+		AActor* HitActor = Result.GetActor();
+		if (!HitActor)
+			continue;
+
+		UAbilitySystemComponent* ASC =
+			UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(HitActor);
+
+		if (!ASC)
+			continue;
+
+		// GameplayEffect 적용
+		FGameplayEffectContextHandle Context =
+			ASC->MakeEffectContext();
+		Context.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle Spec =
+			ASC->MakeOutgoingSpec(DamageEffect, 1.f, Context);
+
+		if (Spec.IsValid())
+		{
+			ASC->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+		}
+	}
+}
+
+void AZS_bomb::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                     FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (OtherActor == this || OtherActor == GetOwner())
+		return;
+
+	Explode();
+}
+
+
 void AZS_bomb::SpantImpact()
 {
-	if (ImpactVFX)
-	{
-		FVector SpawnLocation = GetActorLocation();
-		FRotator SpawnRotation = GetActorRotation();
-
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(
-			GetWorld(),
-			ImpactVFX,
-			SpawnLocation,
-			SpawnRotation
-		);
-	}
+	// if (ImpactVFX)
+	// {
+	// 	FVector SpawnLocation = GetActorLocation();
+	// 	FRotator SpawnRotation = GetActorRotation();
+	//
+	// 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(
+	// 		GetWorld(),
+	// 		ImpactVFX,
+	// 		SpawnLocation,
+	// 		SpawnRotation
+	// 	);
+	// }
 }
 
 void AZS_bomb::ApplyDamageToTarget(AActor* TargetActor)
