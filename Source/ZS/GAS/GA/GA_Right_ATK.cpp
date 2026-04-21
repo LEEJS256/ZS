@@ -128,6 +128,16 @@ void UGA_Right_ATK::FireProjectile()
 
 	FVector TargetPos = GetTargetLocation();
 
+	FVector Dir = TargetPos - SpawnLocation;
+	float Distance = Dir.Size();
+
+	// 최대 사거리 제한
+	if (Distance > ThrowDistance)
+	{
+		Dir.Normalize();
+		TargetPos = SpawnLocation + Dir * ThrowDistance;
+	}
+	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = PlayerCharacter;
 	SpawnParams.Instigator = PlayerCharacter;
@@ -290,6 +300,11 @@ FVector UGA_Right_ATK::CalculateLaunchVelocity(const FVector& Start, const FVect
 TSubclassOf<AZS_bomb> UGA_Right_ATK::GetProjectileClass() const
 {
 	return GAProjectile;
+}
+
+float UGA_Right_ATK::Get_ThrowDistance()
+{
+	return ThrowDistance;
 }
 
 void UGA_Right_ATK::OnMontageCompleted()

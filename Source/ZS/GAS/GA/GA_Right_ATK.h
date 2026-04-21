@@ -49,6 +49,8 @@ public:
 	FVector CalculateLaunchVelocity(const FVector& Start, const FVector& Target);
 
 	TSubclassOf<AZS_bomb> GetProjectileClass() const;
+
+	float Get_ThrowDistance();
 protected:
 
 	UPROPERTY(EditAnywhere)
@@ -74,6 +76,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float ThrowAngle = 0.5f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	float ThrowDistance = 1500.f;
 	
 	UFUNCTION()
 	void OnMontageCompleted();
