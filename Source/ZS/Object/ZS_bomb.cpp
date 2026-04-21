@@ -181,11 +181,11 @@ void AZS_bomb::Explode()
 			);
 		if (NewExplosion)
 		{
-			float size = 2.0f;
+		
 			
-			NewExplosion->SetVariableFloat(TEXT("User.Size"), size);
-			NewExplosion->SetVariableFloat(TEXT("User.SpawnRate"), size);
-			NewExplosion->SetVariableFloat(TEXT("User.SpawnSize"), size);
+			NewExplosion->SetVariableFloat(TEXT("User.Size"), Effect_Magnification);
+			NewExplosion->SetVariableFloat(TEXT("User.SpawnRate"), Effect_Magnification);
+			NewExplosion->SetVariableFloat(TEXT("User.SpawnSize"), Effect_Magnification);
 		}
 	}
 
@@ -201,10 +201,8 @@ void AZS_bomb::Explode()
 		2.0f // 두께
 	);
 
-	// 2. 범위 데미지
 	Apply_RadialDamage();
 
-	// 3. 자기 삭제
 	Destroy();
 }
 

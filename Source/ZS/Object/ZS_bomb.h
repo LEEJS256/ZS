@@ -111,6 +111,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
 	float Explosion_Radius = 300.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
+	float Effect_Magnification = 2.f;
+
 	
 	FRotator SpinRate;
 };
