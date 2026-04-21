@@ -26,10 +26,16 @@ class ZS_API UZSAttributeSet : public UAttributeSet
 public:
 	UZSAttributeSet();
 
+	void Set_PlayerName(FName ArgName);
+	FName Get_PlayerName() const { return PlayerName; }
 #pragma region AttributeSet
 	// 모든 Attribute들의 이전값
 	//TMap<FGameplayAttribute, float> CachedAttributeValue;
-
+	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_PlayerName)
+	// FGameplayAttributeData Name;
+	FName PlayerName;
+	// ATTRIBUTE_ACCESSORS(UZSAttributeSet, Name)
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Speed)
 	FGameplayAttributeData Speed;
 	ATTRIBUTE_ACCESSORS(UZSAttributeSet, Speed)
@@ -114,6 +120,11 @@ protected:
 
 	
 #pragma region Replicated
+	// UFUNCTION()
+	// virtual void OnRep_Name(const FGameplayAttributeData& OldName);
+	UFUNCTION()
+	void OnRep_PlayerName(const FName& OldName);
+	
 	UFUNCTION()
 	virtual void OnRep_Speed(const FGameplayAttributeData& OldSpeed);
 

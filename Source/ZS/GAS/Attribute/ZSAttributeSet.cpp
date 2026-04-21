@@ -23,10 +23,16 @@ UZSAttributeSet::UZSAttributeSet()
 	InitSprintWeight(1.3f);
 }
 
+void UZSAttributeSet::Set_PlayerName(FName ArgName)
+{
+	PlayerName = ArgName ; 
+}
+
 void UZSAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+	DOREPLIFETIME_CONDITION_NOTIFY(UZSAttributeSet, PlayerName, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UZSAttributeSet, Health, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UZSAttributeSet, MaxHealth, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UZSAttributeSet, Stamina, COND_None, REPNOTIFY_Always);
@@ -137,7 +143,13 @@ void UZSAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 	}
 #pragma endregion
 }
-	
+
+void UZSAttributeSet::OnRep_PlayerName(const FName& OldName)
+{
+	// GAMEPLAYATTRIBUTE_REPNOTIFY(UZSAttributeSet, Name, OldName);
+}
+
+
 
 
 void UZSAttributeSet::OnRep_Speed(const FGameplayAttributeData& OldSpeed)
