@@ -18,6 +18,9 @@ class ZS_API UZSPlayerDataAsset : public UDataAsset
 
 public:
 #pragma region AttributeSet
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats|Name")
+	FName Player_Name = TEXT("Default_Hero");
+	
 	//  체력 관련
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats|Speed")
 	float Speed = 700.f;
