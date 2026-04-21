@@ -16,8 +16,7 @@ UZSPreviewComponent::UZSPreviewComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	
 }
 
 void UZSPreviewComponent::StartPreview(const FTrajectoryParams& InParams)
@@ -42,8 +41,7 @@ void UZSPreviewComponent::StopPreview()
 void UZSPreviewComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
+	
 }
 
 
@@ -59,8 +57,14 @@ void UZSPreviewComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FVector Start = RightGA->GetSpawnLocation();
 	FVector Target = RightGA->GetTargetLocation();
 
-	
-
+	FVector Dir = Target - Start;
+	float Distance = Dir.Size();
+	float Throw_Distance= RightGA->Get_ThrowDistance();
+	if (Distance > Throw_Distance)
+	{
+		Dir.Normalize();
+		Target = Start + Dir * Throw_Distance;
+	}
 	// 실제 투사체와 동일 계산
 	FVector LaunchVelocity = RightGA->CalculateLaunchVelocity(Start, Target);
 
@@ -86,11 +90,11 @@ void UZSPreviewComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	if (!DefaultProjectile || !DefaultProjectile->ProjectileMovement)
 		return;
 
-	// 🔥 Gravity 맞추기
+
 	float GravityZ = GetWorld()->GetGravityZ() * DefaultProjectile->ProjectileMovement->ProjectileGravityScale;
 	PredictParams.OverrideGravityZ = GravityZ;
 
-	// 🔥 Radius도 맞추기 (선택 but 강추)
+	
 	PredictParams.ProjectileRadius = DefaultProjectile->CollisionComp->GetScaledSphereRadius();
 
 	PredictParams.ActorsToIgnore.Add(GetOwner());
@@ -99,11 +103,10 @@ void UZSPreviewComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 
 	UGameplayStatics::PredictProjectilePath(GetWorld(), PredictParams, Result);
 
-	// ❗ Path 없으면 종료
+
 	if (Result.PathData.Num() == 0)
 		return;
 
-	// 🔹 궤적 그리기
 	for (int i = 0; i < Result.PathData.Num() - 1; i++)
 	{
 		DrawDebugLine(
@@ -129,8 +132,7 @@ void UZSPreviewComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	{
 		ImpactPoint = Result.PathData.Last().Location;
 	}
-
-	// 🔥 원 방향 계산
+	
 	FVector X, Y;
 
 	if (Result.HitResult.bBlockingHit)
