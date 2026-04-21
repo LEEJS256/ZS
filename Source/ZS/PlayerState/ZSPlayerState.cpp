@@ -113,6 +113,7 @@ void AZSPlayerState::ApplyDefaultAttributes(UZSPlayerDataAsset* Data)
 
 	AttributeSet->SetSpeed(Data->Speed);
 	AttributeSet->SetSprintWeight(Data->SprintWeight);
+	AttributeSet->Set_PlayerName(Data->Player_Name);
 }
 
 void AZSPlayerState::GrantStateTag(FGameplayTag NewStateTag)
