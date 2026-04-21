@@ -10,6 +10,7 @@
 #include "InputMappingContext.h"
 #include "Character/ZSPlayerCharacter.h"
 #include "PlayerState/ZSPlayerState.h"
+#include "UI/ZS_TotalInformationWidget.h"
 #include "Utility/ZSNativeGameplayTag.h"
 
 AZSPlayerController::AZSPlayerController()
@@ -53,6 +54,8 @@ void AZSPlayerController::SetupInputComponent()
 		                                   &AZSPlayerController::ATK_Ultimate);
 		EnhancedInputComponent->BindAction(BuildTower_Action, ETriggerEvent::Completed, this,
 		                                   &AZSPlayerController::BuildTower);
+		EnhancedInputComponent->BindAction(Action_Inventory, ETriggerEvent::Completed, this,
+										   &AZSPlayerController::Open_Inventory);
 	}
 }
 
@@ -313,4 +316,44 @@ void AZSPlayerController::BuildTower(const FInputActionValue& Value)
 	GATagContainer.AddTag(FGameplayTag::RequestGameplayTag(FName("Ability.BuildTower")));
 
 	ASC->TryActivateAbilitiesByTag(GATagContainer);
+}
+
+void AZSPlayerController::Open_Inventory(const FInputActionValue& Value)
+{
+	//없으면 만들기
+	if (!TotalInformation_Widget && TotalInformation_WidgetClass)
+	{
+		TotalInformation_Widget = CreateWidget<UZS_TotalInformationWidget>(
+			this,
+			TotalInformation_WidgetClass
+		);
+	}
+
+	if (!TotalInformation_Widget)
+		return;
+
+	if (TotalInformation_Widget->IsInViewport())
+	{
+		
+		TotalInformation_Widget->RemoveFromParent();
+
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
+
+		SetIgnoreMoveInput(false);
+		SetIgnoreLookInput(false);
+	}
+	else
+	{
+		TotalInformation_Widget->AddToViewport();
+
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+		SetInputMode(InputMode);
+		bShowMouseCursor = true;
+
+		SetIgnoreMoveInput(true);
+		SetIgnoreLookInput(true);
+	}
 }

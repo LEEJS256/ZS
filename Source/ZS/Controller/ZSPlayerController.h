@@ -12,7 +12,7 @@ class UUserWidget;
 struct FInputActionValue;
 class UInputAction;
 class UInputMappingContext;
-
+class UZS_TotalInformationWidget;
 /**
  *  Basic PlayerController class for a third person game
  *  Manages input mappings
@@ -45,6 +45,16 @@ protected:
 	/** Input mapping context setup */
 	virtual void SetupInputComponent() override;
 
+#pragma region UI
+
+	UPROPERTY()
+	UZS_TotalInformationWidget* TotalInformation_Widget;
+
+	UPROPERTY(EditAnywhere, Category="UI")
+	TSubclassOf<UZS_TotalInformationWidget> TotalInformation_WidgetClass;
+	
+#pragma endregion 
+
 public:
 	bool GetMouseHitLocation(FVector& OutLocation);
 	bool GetCenterHitLocation(FVector& OutLocation);
@@ -69,6 +79,10 @@ public:
 	TObjectPtr<UInputAction> Fire_Ultimate_Action;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ZS|Input")
 	TObjectPtr<UInputAction> BuildTower_Action;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ZS|Input")
+	TObjectPtr<UInputAction> Action_Inventory;
+	
 	
 #pragma endregion
 
@@ -85,6 +99,6 @@ private:
 	void ATK_Right(const FInputActionValue& Value);
 	void ATK_Ultimate(const FInputActionValue& Value);
 	void BuildTower(const FInputActionValue& Value);
-	
+	void Open_Inventory(const FInputActionValue& Value);
 #pragma endregion
 };
