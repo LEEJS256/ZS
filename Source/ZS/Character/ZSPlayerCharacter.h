@@ -76,10 +76,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UUserWidget> HUDWidgetClass;
 
-
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UUserWidget> CrosshairWidgetClass;
 
+	UPROPERTY()
 	UZS_Crosshair* CrosshairWidget;
 #pragma endregion
 
