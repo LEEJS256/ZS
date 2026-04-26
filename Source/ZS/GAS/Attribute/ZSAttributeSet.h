@@ -32,9 +32,9 @@ public:
 	// 모든 Attribute들의 이전값
 	//TMap<FGameplayAttribute, float> CachedAttributeValue;
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_PlayerName)
-	// FGameplayAttributeData Name;
 	FName PlayerName;
-	// ATTRIBUTE_ACCESSORS(UZSAttributeSet, Name)
+	// FGameplayAttributeData Name;
+	//ATTRIBUTE_ACCESSORS(UZSAttributeSet, Name)
 	
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Speed)
 	FGameplayAttributeData Speed;
@@ -62,6 +62,10 @@ public:
 	FGameplayAttributeData Exp;
 	ATTRIBUTE_ACCESSORS(UZSAttributeSet, Exp)
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_MaxExp)
+	FGameplayAttributeData MaxExp;
+	ATTRIBUTE_ACCESSORS(UZSAttributeSet, MaxExp)
+	
 	UPROPERTY(BlueprintReadOnly, Category = "Attributeset", ReplicatedUsing = OnRep_Level)
 	FGameplayAttributeData Level;
 	ATTRIBUTE_ACCESSORS(UZSAttributeSet, Level)
@@ -147,6 +151,9 @@ protected:
 	UFUNCTION()
 	virtual void OnRep_Exp(const FGameplayAttributeData& OldExp);
 
+	UFUNCTION()
+	virtual void OnRep_MaxExp(const FGameplayAttributeData& OldMaxExp);
+	
 	UFUNCTION()
 	virtual void OnRep_Level(const FGameplayAttributeData& OldLevel);
 

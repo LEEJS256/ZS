@@ -182,6 +182,11 @@ void UZSAttributeSet::OnRep_Exp(const FGameplayAttributeData& OldExp)
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UZSAttributeSet, Exp, OldExp);
 }
 
+void UZSAttributeSet::OnRep_MaxExp(const FGameplayAttributeData& OldMaxExp)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UZSAttributeSet, MaxExp, OldMaxExp);
+}
+
 void UZSAttributeSet::OnRep_Level(const FGameplayAttributeData& OldLevel)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UZSAttributeSet, Level, OldLevel);
