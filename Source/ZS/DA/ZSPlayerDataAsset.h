@@ -46,6 +46,9 @@ public:
 	float Exp = 0.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats|Progression")
+	float MaxExp = 100.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats|Progression")
 	float Level = 1.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Stats|Progression")
