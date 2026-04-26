@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "AbilitySystemComponent.h"
 #include "ZSPlayerController.generated.h"
 
 class UInputMappingContext;
@@ -52,13 +53,18 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UZS_TotalInformationWidget> TotalInformation_WidgetClass;
-	
-#pragma endregion 
+
+#pragma endregion
 
 public:
 	bool GetMouseHitLocation(FVector& OutLocation);
 	bool GetCenterHitLocation(FVector& OutLocation);
-	
+
+#pragma region Delegate
+	void OnAnyAttributeChanged(const FOnAttributeChangeData& Data);
+
+#pragma endregion
+
 #pragma  region InputMappings
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ZS|Input")
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
@@ -82,8 +88,8 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ZS|Input")
 	TObjectPtr<UInputAction> Action_Inventory;
-	
-	
+
+
 #pragma endregion
 
 private:

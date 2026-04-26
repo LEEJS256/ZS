@@ -4,6 +4,7 @@
 #include "ZSPlayerController.h"
 
 #include "AbilitySystemBlueprintLibrary.h"
+#include "AbilitySystemComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Engine/LocalPlayer.h"
@@ -28,6 +29,13 @@ void AZSPlayerController::BeginPlay()
 	{
 		check(DefaultMappingContext);
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
+	}
+
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+
+	if (PS)
+	{
+		PS->BindToAttributes(this);
 	}
 }
 
@@ -55,7 +63,7 @@ void AZSPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(BuildTower_Action, ETriggerEvent::Completed, this,
 		                                   &AZSPlayerController::BuildTower);
 		EnhancedInputComponent->BindAction(Action_Inventory, ETriggerEvent::Completed, this,
-										   &AZSPlayerController::Open_Inventory);
+		                                   &AZSPlayerController::Open_Inventory);
 	}
 }
 
@@ -100,7 +108,6 @@ bool AZSPlayerController::GetMouseHitLocation(FVector& OutLocation)
 	}
 
 	return false;
-
 }
 
 bool AZSPlayerController::GetCenterHitLocation(FVector& OutLocation)
@@ -134,6 +141,15 @@ bool AZSPlayerController::GetCenterHitLocation(FVector& OutLocation)
 
 	return false;
 }
+
+void AZSPlayerController::OnAnyAttributeChanged(const FOnAttributeChangeData& Data)
+{
+	if (TotalInformation_Widget)
+	{
+		TotalInformation_Widget->Update_TotalWidget();
+	}
+}
+
 
 void AZSPlayerController::Move(const FInputActionValue& Value)
 {
@@ -245,13 +261,13 @@ void AZSPlayerController::StartFireProjectile(const FInputActionValue& Value)
 	{
 		return;
 	}
-	
+
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(
 		PS,
 		TAG_Input_LeftClick,
 		FGameplayEventData()
 	);
-	
+
 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 	if (!ASC)
 		return;
@@ -272,7 +288,7 @@ void AZSPlayerController::ATK_Right(const FInputActionValue& Value)
 		TAG_Input_RightClick,
 		FGameplayEventData()
 	);
-	
+
 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 	if (!ASC)
 		return;
@@ -289,7 +305,7 @@ void AZSPlayerController::ATK_Ultimate(const FInputActionValue& Value)
 	if (!PS)
 		return;
 
-	
+
 	UAbilitySystemComponent* ASC = PS->GetAbilitySystemComponent();
 	if (!ASC)
 		return;
@@ -334,7 +350,6 @@ void AZSPlayerController::Open_Inventory(const FInputActionValue& Value)
 
 	if (TotalInformation_Widget->IsInViewport())
 	{
-		
 		TotalInformation_Widget->RemoveFromParent();
 
 		SetInputMode(FInputModeGameOnly());
