@@ -6,6 +6,24 @@
 #include "Blueprint/UserWidget.h"
 #include "ZS_StatusWidget.generated.h"
 
+USTRUCT()
+struct FZS_StatData
+{
+	GENERATED_BODY()
+
+	FName PlayerName;
+	int32 Level;
+	float HP;
+	float MaxHP;
+	float Stamina;
+	float MaxStamina;
+	int32 Gold;
+	int32 Exp;
+	int32 MaxExp;
+	float Attack;
+	float Armor;
+};
+
 /**
  * 
  */
@@ -15,7 +33,11 @@ class ZS_API UZS_StatusWidget : public UUserWidget
 	GENERATED_BODY()
 public:
 	// UZS_StatusWidget();
+
+	void UpdateStatus(const FZS_StatData& Data);
 protected:
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Name_Text;
 
 	UPROPERTY(meta = (BindWidget))
 	class UTextBlock* Health_Text;
