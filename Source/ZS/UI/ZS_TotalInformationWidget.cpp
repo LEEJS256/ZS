@@ -3,7 +3,22 @@
 
 #include "UI/ZS_TotalInformationWidget.h"
 
+#include "ZS_StatusWidget.h"
+#include "PlayerState/ZSPlayerState.h"
 
+
+void UZS_TotalInformationWidget::Update_TotalWidget()
+{
+	APlayerController* PC = GetOwningPlayer();
+	if (!PC)
+		return;
+
+	AZSPlayerState* PS = PC->GetPlayerState<AZSPlayerState>();
+	if (!PS)
+		return;
+	
+	Status_Widget->UpdateStatus(PS->GetCurrentStatData());
+}
 
 void UZS_TotalInformationWidget::NativeConstruct()
 {

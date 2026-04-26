@@ -20,6 +20,7 @@ class ZS_API UZS_TotalInformationWidget : public UUserWidget
 public:
 //	UZS_TotalInformationWidget();
 
+	void Update_TotalWidget();
 protected:
 
 	virtual void NativeConstruct() override;
@@ -33,24 +34,7 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	UZS_StatusWidget* Status_Widget;
-	
-	// UPROPERTY()
-	// UZS_InventoryWidget* Inventory_Widget;
-	//
-	// UPROPERTY(EditAnywhere, Category="UI")
-	// TSubclassOf<UZS_InventoryWidget> Inventory_WidgetClass;
-	//
-	// UPROPERTY()
-	// UZS_EquipmentWIdget* Equipment_Widget;
-	//
-	// UPROPERTY(EditAnywhere, Category="UI")
-	// TSubclassOf<UZS_EquipmentWIdget> Equipment_WidgetClass;
-	//
-	// UPROPERTY()
-	// UZS_StatusWidget* Status_Widget;
-	//
-	// UPROPERTY(EditAnywhere, Category="UI")
-	// TSubclassOf<UZS_StatusWidget> Status_WidgetClass;
+
 
 	
 #pragma  endregion 
