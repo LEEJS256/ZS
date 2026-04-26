@@ -9,6 +9,8 @@
 
 class UAbilitySystemComponent;
 class UZSAttributeSet;
+class AZSPlayerController;
+struct FZS_StatData;
 /**
  * 
  */
@@ -24,12 +26,15 @@ public:
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	virtual void Tick(float DeltaTime) override;
 
+	void BindToAttributes(AZSPlayerController* PC);
 	// 네트워크 복제에 필요한 함수 재정의
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 #pragma region GAS-function
 	void InitializePlayerDA();
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
 	UZSAttributeSet* GetAttributeSet() const;
+
+	FZS_StatData GetCurrentStatData() const;
 
 	void GrantStateTag(FGameplayTag NewStateTag);
 #pragma endregion

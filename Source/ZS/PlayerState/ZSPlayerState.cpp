@@ -4,6 +4,8 @@
 #include "PlayerState/ZSPlayerState.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "AbilitySystemComponent.h"
+#include "Controller/ZSPlayerController.h"
+#include "UI/ZS_StatusWidget.h"
 #include "Utility/ZSNativeGameplayTag.h"
 
 AZSPlayerState::AZSPlayerState()
@@ -31,6 +33,43 @@ void AZSPlayerState::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AZSPlayerState::BindToAttributes(AZSPlayerController* PC)
+{
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetHealthAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxHealthAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+	
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetStaminaAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxStaminaAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetLevelAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetGoldAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetExpAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+	
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetMaxExpAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+	
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetAttackAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+	
+	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetArmorAttribute())
+		.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+	
+	// AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AttributeSet->GetExpAttribute())
+	// 	.AddUObject(PC, &AZSPlayerController::OnAnyAttributeChanged);
+	
+}
+
 void AZSPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -44,6 +83,25 @@ UAbilitySystemComponent* AZSPlayerState::GetAbilitySystemComponent() const
 UZSAttributeSet* AZSPlayerState::GetAttributeSet() const
 {
 	return AttributeSet;
+}
+
+FZS_StatData AZSPlayerState::GetCurrentStatData() const
+{
+	FZS_StatData Data;
+
+	Data.PlayerName = AttributeSet->Get_PlayerName();
+	Data.Level = AttributeSet->GetLevel();
+	Data.HP			=  AttributeSet->GetHealth();
+	Data.MaxHP		= AttributeSet->GetMaxHealth();
+	Data.Stamina	= AttributeSet->GetStamina();
+	Data.MaxStamina = AttributeSet->GetMaxStamina();
+	Data.Gold		= AttributeSet->GetGold();
+	Data.Exp		= AttributeSet->GetExp();
+	Data.MaxExp		= AttributeSet->GetMaxExp();
+	Data.Attack		= AttributeSet->GetAttack();
+	Data.Armor		= AttributeSet->GetArmor();
+
+	return Data;
 }
 
 void AZSPlayerState::InitializePlayerDA()
@@ -101,7 +159,8 @@ void AZSPlayerState::ApplyDefaultAttributes(UZSPlayerDataAsset* Data)
 	{
 		return;
 	}
-
+	AttributeSet->SetMaxExp(Data->MaxExp);
+	
 	AttributeSet->SetHealth(Data->Health);
 	AttributeSet->SetMaxHealth(Data->MaxHealth);
 
