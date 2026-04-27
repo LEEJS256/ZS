@@ -24,6 +24,7 @@ public:
 protected:
 
 	virtual void NativeConstruct() override;
+	virtual void NativePreConstruct() override;
 	
 #pragma region UI
 	UPROPERTY(meta = (BindWidget))

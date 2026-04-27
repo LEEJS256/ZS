@@ -3,6 +3,7 @@
 
 #include "UI/ZS_TotalInformationWidget.h"
 
+#include "ZS_InventoryWidget.h"
 #include "ZS_StatusWidget.h"
 #include "PlayerState/ZSPlayerState.h"
 
@@ -18,6 +19,8 @@ void UZS_TotalInformationWidget::Update_TotalWidget()
 		return;
 	
 	Status_Widget->UpdateStatus(PS->GetCurrentStatData());
+
+	Inventory_Widget->RefreshGrid();
 }
 
 void UZS_TotalInformationWidget::NativeConstruct()
@@ -26,6 +29,7 @@ void UZS_TotalInformationWidget::NativeConstruct()
 	if (Inventory_Widget)
 	{
 		// 초기화
+		Inventory_Widget->RefreshGrid();
 	}
 
 	if (Equipment_Widget)
@@ -38,4 +42,15 @@ void UZS_TotalInformationWidget::NativeConstruct()
         
 	}
 
+}
+
+void UZS_TotalInformationWidget::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	if (Inventory_Widget)
+	{
+		// 초기화
+		Inventory_Widget->RefreshGrid();
+	}
 }
