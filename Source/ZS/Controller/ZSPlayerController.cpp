@@ -370,5 +370,7 @@ void AZSPlayerController::Open_Inventory(const FInputActionValue& Value)
 
 		SetIgnoreMoveInput(true);
 		SetIgnoreLookInput(true);
+
+		TotalInformation_Widget->Update_TotalWidget();
 	}
 }
