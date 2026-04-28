@@ -15,7 +15,8 @@ void UZS_InventoryWidget::NativeConstruct()
 
 	if (!GridPanel || !SlotClass)
 		return;
-
+	
+	RefreshGrid();
 }
 
 void UZS_InventoryWidget::NativePreConstruct()
@@ -24,9 +25,34 @@ void UZS_InventoryWidget::NativePreConstruct()
 	RefreshGrid();
 }
 
+#if WITH_EDITOR
+void UZS_InventoryWidget::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+{
+	Super::PostEditChangeProperty(PropertyChangedEvent);
+
+	static const FName WidthName  = GET_MEMBER_NAME_CHECKED(UZS_InventoryWidget, Grid_Width);
+	static const FName HeightName = GET_MEMBER_NAME_CHECKED(UZS_InventoryWidget, Grid_Height);
+
+	FName ChangedName = PropertyChangedEvent.GetPropertyName();
+    
+	if (ChangedName == WidthName || ChangedName == HeightName)
+	{
+		if (GridPanel && SlotClass)
+		{
+			GridPanel->ClearChildren();
+			ItemGrid.SetNum(Grid_Width * Grid_Height);
+			MakeGrid();
+		}
+	}
+}
+#endif
+
 void UZS_InventoryWidget::RefreshGrid()
 {
-	GridPanel->ClearChildren(); 
+	if (!GridPanel || !SlotClass)
+		return;
+	GridPanel->ClearChildren();
+	ItemGrid.SetNum(Grid_Width * Grid_Height);
 	MakeGrid();
 }
 
@@ -34,7 +60,10 @@ void UZS_InventoryWidget::SynchronizeProperties()
 {
 	Super::SynchronizeProperties();
 
-	if (!GridPanel || !SlotClass) return;
+	// UE_LOG(LogTemp, Warning, TEXT("SynchronizeProperties called: W=%d H=%d"), Grid_Width, Grid_Height);
+	
+	if (!GridPanel || !SlotClass)
+		return;
 	
 	if (Grid_Num <= 0) 
 	{
@@ -48,9 +77,11 @@ void UZS_InventoryWidget::SynchronizeProperties()
 
 void UZS_InventoryWidget::MakeGrid()
 {
-	for (int32 Y = 0; Y < Grid_Num; Y++)
+	// UE_LOG(LogTemp,Warning, TEXT("Make Grid: W=%d H=%d"), Grid_Width, Grid_Height);
+
+	for (int32 Y = 0; Y < Grid_Height; Y++)
 	{
-		for (int32 X = 0; X < Grid_Num; X++)
+		for (int32 X = 0; X < Grid_Width; X++)
 		{
 			UZS_InventorySlot* newInventorySlot = CreateWidget<UZS_InventorySlot>(GetWorld(), SlotClass);
 
@@ -58,9 +89,7 @@ void UZS_InventoryWidget::MakeGrid()
 				return;
 
 			newInventorySlot->SetIndex(X, Y);
-
-			//UGridSlot* GridSlot = GridPanel->AddChildToGrid(newInventorySlot,Y,X);
-
+			
 			UUniformGridSlot* GridSlot = GridPanel->AddChildToUniformGrid(newInventorySlot, Y, X);
 
 
