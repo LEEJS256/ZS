@@ -4,17 +4,20 @@
 #include "UI/ZS_InventoryWidget.h"
 
 #include "ZS_InventorySlot.h"
+#include "Component/ZS_InventoryComponent.h"
+#include "Components/Image.h"
 #include "Components/UniformGridPanel.h"
-#include "Components/UniformGridSlot.h"
+#include "DA/ZS_ItemData.h"
+
 
 void UZS_InventoryWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	ItemGrid.SetNum(Grid_Num * Grid_Num);
 
 	if (!GridPanel || !SlotClass)
 		return;
+
 	
 	RefreshGrid();
 }
@@ -25,81 +28,62 @@ void UZS_InventoryWidget::NativePreConstruct()
 	RefreshGrid();
 }
 
-#if WITH_EDITOR
-void UZS_InventoryWidget::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
+void UZS_InventoryWidget::SetInventory(UZS_InventoryComponent* InInventory)
 {
-	Super::PostEditChangeProperty(PropertyChangedEvent);
-
-	static const FName WidthName  = GET_MEMBER_NAME_CHECKED(UZS_InventoryWidget, Grid_Width);
-	static const FName HeightName = GET_MEMBER_NAME_CHECKED(UZS_InventoryWidget, Grid_Height);
-
-	FName ChangedName = PropertyChangedEvent.GetPropertyName();
-    
-	if (ChangedName == WidthName || ChangedName == HeightName)
-	{
-		if (GridPanel && SlotClass)
-		{
-			GridPanel->ClearChildren();
-			ItemGrid.SetNum(Grid_Width * Grid_Height);
-			MakeGrid();
-		}
-	}
+	InventoryRef = InInventory;
 }
-#endif
+
 
 void UZS_InventoryWidget::RefreshGrid()
 {
-	if (!GridPanel || !SlotClass)
+	if (!GridPanel || !SlotClass || !InventoryRef)
 		return;
+
 	GridPanel->ClearChildren();
-	ItemGrid.SetNum(Grid_Width * Grid_Height);
-	MakeGrid();
-}
 
-void UZS_InventoryWidget::SynchronizeProperties()
-{
-	Super::SynchronizeProperties();
+	const auto& Grid = InventoryRef->GetGrid();
+	const auto& Items = InventoryRef->GetItems();
 
-	// UE_LOG(LogTemp, Warning, TEXT("SynchronizeProperties called: W=%d H=%d"), Grid_Width, Grid_Height);
-	
-	if (!GridPanel || !SlotClass)
-		return;
-	
-	if (Grid_Num <= 0) 
+	int32 GridWidth = InventoryRef->GridWidth;
+
+	for (int32 i = 0; i < Grid.Num(); ++i)
 	{
-		GridPanel->ClearChildren();
-		return;
-	}
-	
-	GridPanel->ClearChildren(); 
-	MakeGrid();
-}
+		int32 X = i % GridWidth;
+		int32 Y = i / GridWidth;
 
-void UZS_InventoryWidget::MakeGrid()
-{
-	// UE_LOG(LogTemp,Warning, TEXT("Make Grid: W=%d H=%d"), Grid_Width, Grid_Height);
+		UZS_InventorySlot* NewSlot = CreateWidget<UZS_InventorySlot>(this, SlotClass);
 
-	for (int32 Y = 0; Y < Grid_Height; Y++)
-	{
-		for (int32 X = 0; X < Grid_Width; X++)
+		bool bBlocked = false;
+
+		if (Grid[i].ItemIndex != INDEX_NONE)
 		{
-			UZS_InventorySlot* newInventorySlot = CreateWidget<UZS_InventorySlot>(GetWorld(), SlotClass);
+			const auto& Item = Items[Grid[i].ItemIndex];
 
-			if (!newInventorySlot)
-				return;
-
-			newInventorySlot->SetIndex(X, Y);
-			
-			UUniformGridSlot* GridSlot = GridPanel->AddChildToUniformGrid(newInventorySlot, Y, X);
-
-
-			if (GridSlot)
+			if (Item.Origin.X == X && Item.Origin.Y == Y)
 			{
-				// GridSlot->SetPadding((FMargin(0.f)));
+				// ⭐ 대표 칸
+				NewSlot->SetItem(Item.ItemData);
 
-				GridSlot->SetHorizontalAlignment(HAlign_Fill);
-				GridSlot->SetVerticalAlignment(VAlign_Fill);
+				int32 Width = 0;
+				int32 Height = 0;
+
+				for (const FIntPoint& Offset : Item.ItemData->ShapeOffsets)
+				{
+					Width = FMath::Max(Width, Offset.X + 1);
+					Height = FMath::Max(Height, Offset.Y + 1);
+				}
+
+				NewSlot->SetItemSize(Width, Height, 64.f);
+			}
+			else
+			{
+				// ⭐ 나머지 칸 막기 (핵심!)
+				bBlocked = true;
 			}
 		}
+
+		NewSlot->SetBlocked(bBlocked);
+
+		GridPanel->AddChildToUniformGrid(NewSlot, Y, X);
 	}
 }

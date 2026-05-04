@@ -10,38 +10,8 @@
  * 
  */
 class UZS_InventoryWidget;
-
-USTRUCT(BlueprintType)
-struct FInventoryItem
-{
-	GENERATED_BODY()
-
-	UPROPERTY()
-	TObjectPtr<UZS_ItemData> ItemData;
-
-	UPROPERTY()
-	int32 Count = 1;
-
-	UPROPERTY()
-	FIntPoint Origin; // 기준 좌표 (왼쪽 위)
-
-	UPROPERTY()
-	TArray<FIntPoint> OccupiedCells; // ShapeOffsets 적용된 결과
-};
-
-USTRUCT(BlueprintType)
-struct FGridCell
-{
-	GENERATED_BODY()
-
-	bool bOccupied = false;
-	
-	// UPROPERTY()
-	// TObjectPtr<class UZS_ItemData> Item = nullptr;
-	//
-	UPROPERTY()
-	int32 ItemIndex = INDEX_NONE; 
-};
+class UZS_ItemData;
+class UZS_InventoryComponent;
 
 UCLASS()
 class ZS_API UZS_InventoryWidget : public UUserWidget
@@ -55,38 +25,17 @@ public:
 	//에디터 프리뷰용임
 	void NativePreConstruct() override;
 
-#if WITH_EDITOR
-	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif
-	
-	void RefreshGrid();
-	
+	void SetInventory(UZS_InventoryComponent* InInventory);
 
-	virtual void SynchronizeProperties() override;
-private:
-	void MakeGrid();
+	void RefreshGrid();
+
 protected:
 	UPROPERTY()
-	TArray<FInventoryItem> Items;
-	
-	UPROPERTY()
-	TArray<FGridCell> ItemGrid;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	int32  Grid_Num = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	int32  Grid_Width = 5;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-	int32  Grid_Height = 8;
-
-	// UPROPERTY(meta = (BindWidget))
-	// class UGridPanel* GridPanel;
+	TObjectPtr<UZS_InventoryComponent> InventoryRef;
 
 	UPROPERTY(meta = (BindWidget))
 	class UUniformGridPanel* GridPanel;
-	
+
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UZS_InventorySlot> SlotClass;
 };
