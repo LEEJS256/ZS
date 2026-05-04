@@ -5,6 +5,7 @@
 
 #include "ZS_InventoryWidget.h"
 #include "ZS_StatusWidget.h"
+#include "Character/ZSPlayerCharacter.h"
 #include "PlayerState/ZSPlayerState.h"
 
 
@@ -26,8 +27,15 @@ void UZS_TotalInformationWidget::Update_TotalWidget()
 void UZS_TotalInformationWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
+
+	AZSPlayerCharacter* Player = Cast<AZSPlayerCharacter>(GetOwningPlayerPawn());
+
+	if (!Player)
+		return;
+	
 	if (Inventory_Widget)
 	{
+		Inventory_Widget->SetInventory(Player->Inventory);
 		// 초기화
 		Inventory_Widget->RefreshGrid();
 	}
