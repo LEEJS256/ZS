@@ -9,6 +9,8 @@
 /**
  * 
  */
+class UZS_ItemData;
+class USizeBox;
 UCLASS()
 class ZS_API UZS_InventorySlot : public UUserWidget
 {
@@ -19,8 +21,15 @@ public:
 	void SetHighLight(const FLinearColor& Color);
 
 	void SetIndex(int32 InX, int32 InY);
+	void SetItem(TObjectPtr<UZS_ItemData> ArgItemData);
+
+	void SetItemSize(int32 Width, int32 Height, float CellSize);
+	void SetBlocked(bool bBlocked);
 protected:
 
+	UPROPERTY(meta = (BindWidget))
+	class USizeBox* RootSizeBox;
+	
 	UPROPERTY(meta = (BindWidget))
 	class UImage* SlotImage;
 	
