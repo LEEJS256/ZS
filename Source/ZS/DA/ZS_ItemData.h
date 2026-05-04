@@ -18,14 +18,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	FName ItemName;
-	//
-
+	
 	// UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	// UPaperSprite* ItemIcon_Sprite;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	UTexture2D* ITemIcon;
 
-	// 핵심
+	// 모양 결정짓기
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FIntPoint> ShapeOffsets;
 	
