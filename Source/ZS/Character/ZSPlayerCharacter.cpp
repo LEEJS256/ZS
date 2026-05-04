@@ -7,10 +7,12 @@
 #include "Blueprint/UserWidget.h"
 #include "Camera/CameraComponent.h"
 #include "Component/ZSPreviewComponent.h"
+#include "Component/ZS_InventoryComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "PlayerState/ZSPlayerState.h"
+#include "DA/ZS_ItemData.h"
 #include "UI/ZS_Crosshair.h"
 #include "UI/ZS_playerHudWidget.h"
 #include "Utility/ZSNativeGameplayTag.h"
@@ -49,7 +51,7 @@ AZSPlayerCharacter::AZSPlayerCharacter()
 	bReplicates = true;
 
 	PreviewComponent = CreateDefaultSubobject<UZSPreviewComponent>(TEXT("PriviewComponent"));
-	
+	Inventory = CreateDefaultSubobject<UZS_InventoryComponent>(TEXT("Inventory"));
 }
 
 UAbilitySystemComponent* AZSPlayerCharacter::GetAbilitySystemComponent() const
@@ -76,6 +78,8 @@ void AZSPlayerCharacter::BeginPlay()
 
 	BaseSetting();
 	BaseUI();
+
+	Inventory->AddItem(Test_ItemData);
 }
 
 void AZSPlayerCharacter::PossessedBy(AController* NewController)
@@ -101,6 +105,11 @@ void AZSPlayerCharacter::Tick(float DeltaTime)
 void AZSPlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+void AZSPlayerCharacter::GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 }
 
 void AZSPlayerCharacter::ApplyAttributesToMovement()

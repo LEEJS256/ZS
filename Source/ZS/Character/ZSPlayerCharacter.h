@@ -12,6 +12,8 @@ class UZSAttributeSet;
 class UZS_playerHudWidget;
 class UZS_Crosshair;
 class UZSPreviewComponent;
+class UZS_InventoryComponent;
+class UZS_ItemData;
 UCLASS()
 class ZS_API AZSPlayerCharacter : public ACharacter
 {
@@ -34,6 +36,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UZSPreviewComponent* PreviewComponent;
+
+	UPROPERTY(VisibleAnywhere)
+	UZS_InventoryComponent* Inventory;
+	
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadOnly, Category = "SK|GAS")
+	UZS_ItemData* Test_ItemData;
+	
 #pragma  endregion
 
 	
@@ -48,6 +57,7 @@ protected:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
 #pragma region GAS
 
 	void ApplyAttributesToMovement();
