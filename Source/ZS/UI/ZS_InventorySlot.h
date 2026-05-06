@@ -32,10 +32,11 @@ protected:
 	
 	UPROPERTY(meta = (BindWidget))
 	class UImage* SlotImage;
-	
+
+	//인덱스들
 	UPROPERTY()
-	int32 X;
+	int32 Index_X;
 
 	UPROPERTY()
-	int32 Y;
+	int32 Index_Y;
 };
