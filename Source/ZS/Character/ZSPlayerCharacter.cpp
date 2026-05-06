@@ -80,6 +80,10 @@ void AZSPlayerCharacter::BeginPlay()
 	BaseUI();
 
 	Inventory->AddItem(Test_ItemData);
+	// if (Inventory)
+	// {
+	// 	Inventory->RefreshGrid();
+	// }
 }
 
 void AZSPlayerCharacter::PossessedBy(AController* NewController)
