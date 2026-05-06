@@ -12,7 +12,8 @@
 class UZS_InventoryWidget;
 class UZS_ItemData;
 class UZS_InventoryComponent;
-
+class UCanvasPanel;
+class UZS_ItemWidget;
 UCLASS()
 class ZS_API UZS_InventoryWidget : public UUserWidget
 {
@@ -36,6 +37,15 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class UUniformGridPanel* GridPanel;
 
+  	UPROPERTY(meta = (BindWidget))
+    class UCanvasPanel* ItemLayer;
+
+	UPROPERTY(EditAnywhere, Category="Inventory")
+	TSubclassOf<class UZS_ItemWidget> ItemWidgetClass;  
+
+	UPROPERTY(EditAnywhere, Category="Inventory")
+	float CellSize = 128.f;
+	
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UZS_InventorySlot> SlotClass;
 };
