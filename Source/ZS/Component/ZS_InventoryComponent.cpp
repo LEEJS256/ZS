@@ -23,6 +23,7 @@ bool UZS_InventoryComponent::AddItem(UZS_ItemData* ItemData)
 		{
 			if (PlaceItem(ItemData, FIntPoint(x, y)))
 			{
+				OnInventoryChanged.Broadcast();
 				return true;
 			}
 		}

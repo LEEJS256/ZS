@@ -41,6 +41,9 @@ struct FGridCell_Component
 
 #pragma  endregion 
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryChanged);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ZS_API UZS_InventoryComponent : public UActorComponent
 {
@@ -67,6 +70,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnInventoryChanged OnInventoryChanged;
 
 private:
 	UPROPERTY()
