@@ -20,6 +20,10 @@ class ZS_API UZS_ItemWidget : public UUserWidget
 public:
 	void SetItemData(UZS_ItemData* InItemData);
 
+	// 인벤토리 내 Origin 위치 설정 (드래그 복원용)
+	void SetOrigin(FIntPoint InOrigin);
+
+	void SetCellSize(float InCellSize);
 protected:
 	// BP에서 SizeBox > Image 구조로 만들면 됨
 	UPROPERTY(meta = (BindWidget))
@@ -30,6 +34,23 @@ protected:
 
 	UPROPERTY()
 	TObjectPtr<UZS_ItemData> ItemData;
+	// 인벤토리 그리드 상 위치
+	UPROPERTY()
+	FIntPoint Origin;
+
+	UPROPERTY()
+	float CellSize = 128.f;
+	
+	// ─── 드래그 앤 드롭 ───────────────────────────────────────
+
+	// 마우스 버튼 누름 → 드래그 감지 시작
+	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry,
+										   const FPointerEvent& InMouseEvent) override;
+
+	// 드래그 실제 시작 시 DragDropOperation 생성
+	virtual void NativeOnDragDetected(const FGeometry& InGeometry,
+									  const FPointerEvent& InMouseEvent,
+									  UDragDropOperation*& OutOperation) override;
 };
 	
 
