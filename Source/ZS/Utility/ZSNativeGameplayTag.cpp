@@ -38,7 +38,7 @@ UE_DEFINE_GAMEPLAY_TAG(TAG_Ability_InterAction, "Ability.InterAction");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State, "State");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Idle, "State.Idle");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_ATK, "State.ATK");
-
+UE_DEFINE_GAMEPLAY_TAG(TAG_State_Option, "State.Option");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Run, "State.Run");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Walk, "State.Walk");
 UE_DEFINE_GAMEPLAY_TAG(TAG_State_Wound, "State.Wound");
