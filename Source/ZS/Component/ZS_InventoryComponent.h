@@ -56,7 +56,18 @@ public:
 	bool AddItem(UZS_ItemData* ItemData);
 	bool PlaceItem(UZS_ItemData* ItemData, FIntPoint Origin);
 	bool CanPlaceItem(UZS_ItemData* ItemData, FIntPoint Origin);
+#pragma region Drag
 
+	bool CanPlaceItemExcluding(UZS_ItemData* ItemData, FIntPoint NewOrigin, FIntPoint ExcludeOrigin);
+
+	/**
+	 * 아이템을 OldOrigin → NewOrigin 으로 이동
+	 * 성공 시 OnInventoryChanged 브로드캐스트, 실패 시 false 반환
+	 */
+	bool MoveItem(FIntPoint OldOrigin, FIntPoint NewOrigin);
+
+	void RemoveItemAt(FIntPoint Origin);
+#pragma  endregion 
 	void ClearGrid();
 
 	// Getter
@@ -80,6 +91,10 @@ private:
 
 	UPROPERTY()
 	TArray<FGridCell_Component> ItemGrid;
+	
+	// Items 배열에서 Origin으로 아이템 인덱스 찾기
+	int32 FindItemIndexByOrigin(FIntPoint Origin) const;
+	
 
 public:
 
