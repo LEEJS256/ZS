@@ -119,6 +119,26 @@ void AZSPlayerState::InitializePlayerDA()
 	GrantStateTag(TAG_State_Idle);
 }
 
+void AZSPlayerState::GrantStateTag_GE(FGameplayTag NewStateTag)
+{
+	if (!AbilitySystemComponent) return;
+
+	// 이전 State GE 제거
+	if (CurrentStateGEHandle.IsValid())
+	{
+		AbilitySystemComponent->RemoveActiveGameplayEffect(CurrentStateGEHandle);
+		CurrentStateGEHandle.Invalidate();
+	}
+
+	// 새 GE 적용
+	if (TSubclassOf<UGameplayEffect>* GEClass = StateTagToGE.Find(NewStateTag))
+	{
+		FGameplayEffectContextHandle Context = AbilitySystemComponent->MakeEffectContext();
+		FGameplayEffectSpecHandle Spec = AbilitySystemComponent->MakeOutgoingSpec(*GEClass, 1.f, Context);
+		CurrentStateGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*Spec.Data.Get());
+	}
+}
+
 void AZSPlayerState::GrantDefaultGA(UZSPlayerDataAsset* Data)
 {
 	if (!Data || !AbilitySystemComponent)

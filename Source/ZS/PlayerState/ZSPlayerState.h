@@ -37,6 +37,14 @@ public:
 	FZS_StatData GetCurrentStatData() const;
 
 	void GrantStateTag(FGameplayTag NewStateTag);
+
+	UPROPERTY(EditDefaultsOnly, Category = "GE")
+	TMap<FGameplayTag, TSubclassOf<UGameplayEffect>> StateTagToGE;
+
+	FActiveGameplayEffectHandle CurrentStateGEHandle;
+	
+	void GrantStateTag_GE(FGameplayTag NewStateTag);
+
 #pragma endregion
 	
 protected:
