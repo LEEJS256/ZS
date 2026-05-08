@@ -249,7 +249,7 @@ void AZSPlayerController::StopSprint(const FInputActionValue& Value)
 	// if (bSprintFlag)
 	// {
 	// 	bSprintFlag = false;
-	// 	PlayerCharacter->SetLooseTag(TAG_State_Movement_Sprint, false);
+	//	PlayerCharacter->SetLooseTag(TAG_State_Movement_Sprint, false);
 	// 	PlayerCharacter->SetLooseTag(TAG_State_Movement_Idle, true);
 	// }
 }
@@ -336,6 +336,12 @@ void AZSPlayerController::BuildTower(const FInputActionValue& Value)
 
 void AZSPlayerController::Open_Inventory(const FInputActionValue& Value)
 {
+	AZSPlayerState* PS = GetPlayerState<AZSPlayerState>();
+	if (!PS)
+	{
+		return;
+	}
+
 	//없으면 만들기
 	if (!TotalInformation_Widget && TotalInformation_WidgetClass)
 	{
@@ -357,6 +363,8 @@ void AZSPlayerController::Open_Inventory(const FInputActionValue& Value)
 
 		SetIgnoreMoveInput(false);
 		SetIgnoreLookInput(false);
+
+		PS->GrantStateTag_GE(TAG_State_Idle);
 	}
 	else
 	{
@@ -371,6 +379,7 @@ void AZSPlayerController::Open_Inventory(const FInputActionValue& Value)
 		SetIgnoreMoveInput(true);
 		SetIgnoreLookInput(true);
 
+		PS->GrantStateTag_GE(TAG_State_Option);
 		TotalInformation_Widget->Update_TotalWidget();
 	}
 }
