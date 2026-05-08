@@ -53,18 +53,13 @@ public:
 	int32 GetPlacedWidth() const { return bRotated ? GetBaseHeight() : GetBaseWidth(); }
 	int32 GetPlacedHeight() const { return bRotated ? GetBaseWidth() : GetBaseHeight(); }
 
-	// 회전된 ShapeOffsets 반환 (충돌 체크용)
 	TArray<FIntPoint> GetPlacedOffsets() const
 	{
 		if (!bRotated) return ShapeOffsets;
-
 		int32 BaseH = GetBaseHeight();
 		TArray<FIntPoint> Rotated;
 		for (const FIntPoint& P : ShapeOffsets)
-		{
-			// 90도 시계방향: (x, y) → (BaseH - 1 - y, x)
 			Rotated.Add(FIntPoint(BaseH - 1 - P.Y, P.X));
-		}
 		return Rotated;
 	}
 #pragma endregion
