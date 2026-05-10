@@ -12,7 +12,7 @@
 class UZS_ItemData;
 class UImage;
 class USizeBox;
-
+class UTextBlock;
 UCLASS()
 class ZS_API UZS_ItemWidget : public UUserWidget
 {
@@ -24,14 +24,25 @@ public:
 	void SetOrigin(FIntPoint InOrigin);
 
 	void SetCellSize(float InCellSize);
+
+	void SetCount(int32 InCount);
 protected:
+
+	void NativeConstruct() override;
+	
 	// BP에서 SizeBox > Image 구조로 만들면 됨
 	UPROPERTY(meta = (BindWidget))
 	USizeBox* RootSizeBox;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* ItemIcon;
+	
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* CountText;
 
+	UPROPERTY()
+	int32 CachedCount = 1;
+	
 	UPROPERTY()
 	TObjectPtr<UZS_ItemData> ItemData;
 	// 인벤토리 그리드 상 위치

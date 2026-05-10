@@ -5,6 +5,7 @@
 
 #include "Components/Image.h"
 #include "Components/SizeBox.h"
+#include "Components/TextBlock.h"
 #include "DA/ZS_ItemData.h"
 #include "UI_Utility/ZS_ItemDragDrop.h"
 
@@ -27,6 +28,30 @@ void UZS_ItemWidget::SetOrigin(FIntPoint InOrigin)
 void UZS_ItemWidget::SetCellSize(float InCellSize)
 {
 	CellSize = InCellSize;
+}
+
+void UZS_ItemWidget::SetCount(int32 InCount)
+{
+	CachedCount = InCount;
+	
+	if (!CountText)
+		return;
+ 
+	if (InCount > 1)
+	{
+		CountText->SetText(FText::AsNumber(InCount));
+		CountText->SetVisibility(ESlateVisibility::HitTestInvisible);
+	}
+	else
+	{
+		CountText->SetVisibility(ESlateVisibility::Collapsed);
+	}
+}
+
+void UZS_ItemWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+	SetCount(CachedCount);
 }
 
 FReply UZS_ItemWidget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -59,8 +84,8 @@ void UZS_ItemWidget::NativeOnDragDetected(const FGeometry& InGeometry, const FPo
 
 	int32 W = ItemData->GetPlacedWidth();
 	int32 H = ItemData->GetPlacedHeight();
-
-	if (USizeBox* SizeBox = Cast<USizeBox>(DragVisual->GetRootWidget()))
+	
+	if (USizeBox* SizeBox = Cast<USizeBox>(DragVisual->GetWidgetFromName(TEXT("RootSizeBox"))))
 	{
 		SizeBox->SetWidthOverride(W * CellSize);
 		SizeBox->SetHeightOverride(H * CellSize);
