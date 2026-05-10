@@ -17,6 +17,27 @@ UZS_InventoryComponent::UZS_InventoryComponent()
 
 bool UZS_InventoryComponent::AddItem(UZS_ItemData* ItemData)
 {
+	if (!ItemData)
+		return false;
+ 
+	// 스택 가능한 아이템이면 기존 스택에 합치기
+	if (ItemData->bStackable)
+	{
+		for (FInventoryItem_Component& Item : Items)
+		{
+			if (!Item.ItemData) continue;
+ 
+			if (Item.ItemData->ItemName == ItemData->ItemName &&
+				Item.Count < ItemData->MaxStackCount)
+			{
+				Item.Count++;
+				OnInventoryChanged.Broadcast();
+				return true;
+			}
+		}
+	}
+ 
+	// 스택 불가 또는 기존 스택이 꽉 찼으면 새 슬롯에 배치
 	for (int32 y = 0; y < GridHeight; y++)
 	{
 		for (int32 x = 0; x < GridWidth; x++)
@@ -28,8 +49,8 @@ bool UZS_InventoryComponent::AddItem(UZS_ItemData* ItemData)
 			}
 		}
 	}
-
-	return false; // 실패
+ 
+	return false;
 }
 
 bool UZS_InventoryComponent::PlaceItem(UZS_ItemData* ItemData, FIntPoint Origin)
@@ -111,7 +132,8 @@ bool UZS_InventoryComponent::CanPlaceItemExcluding(UZS_ItemData* ItemData, FIntP
 bool UZS_InventoryComponent::MoveItem(FIntPoint OldOrigin, FIntPoint NewOrigin)
 {
 	int32 ItemIdx = FindItemIndexByOrigin(OldOrigin);
-	if (ItemIdx == INDEX_NONE) return false;
+	if (ItemIdx == INDEX_NONE)
+		return false;
 
 	FInventoryItem_Component ItemCopy = Items[ItemIdx];
 
@@ -135,12 +157,29 @@ bool UZS_InventoryComponent::MoveItem(FIntPoint OldOrigin, FIntPoint NewOrigin)
 	}
 
 	// 2) 새 위치에 배치
-	if (!PlaceItem(ItemCopy.ItemData, NewOrigin))
+	if (!CanPlaceItem(ItemCopy.ItemData, NewOrigin))
 	{
 		// 실패 시 원래 위치로 복원
 		PlaceItem(ItemCopy.ItemData, OldOrigin);
 		return false;
 	}
+
+	ItemCopy.Origin = NewOrigin;
+	ItemCopy.OccupiedCells.Empty();
+
+	int32 NewIndex = Items.Num();
+	for (const FIntPoint& Offset : ItemCopy.ItemData->GetPlacedOffsets())
+	{
+		FIntPoint Cell  = NewOrigin + Offset;
+		int32 GridIdx   = Cell.Y * GridWidth + Cell.X;
+
+		ItemGrid[GridIdx].bOccupied = true;
+		ItemGrid[GridIdx].ItemIndex = NewIndex;
+
+		ItemCopy.OccupiedCells.Add(Cell);
+	}
+
+	Items.Add(ItemCopy); // Count 포함 전체 복사
 
 	OnInventoryChanged.Broadcast();
 	return true;
