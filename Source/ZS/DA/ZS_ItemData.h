@@ -10,6 +10,18 @@
  * 
  */
 // class UPaperSprite;
+
+UENUM(BlueprintType)
+enum class EItemGrade : uint8
+{
+	Common,
+	Uncommon,
+	Rare,
+	Epic,
+	Legendary
+};
+
+class UNiagaraSystem;
 UCLASS()
 class ZS_API UZS_ItemData : public UDataAsset
 {
@@ -29,8 +41,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<FIntPoint> ShapeOffsets;
 
+	// 스택 가능 여부
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Stack")
+	bool bStackable = false;
+ 
+	// 최대 스택 수
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Stack", meta=(EditCondition="bStackable", ClampMin="1"))
+	int32 MaxStackCount = 99;
+	
 	UPROPERTY()
 	bool bRotated = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item")
+	EItemGrade ItemGrade = EItemGrade::Common;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Item")
+	TObjectPtr<UNiagaraSystem> PickupEffect;
 
 
 #pragma  region PublicFunction
