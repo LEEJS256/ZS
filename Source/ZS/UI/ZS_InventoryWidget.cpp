@@ -95,6 +95,7 @@ if (!GridPanel || !SlotClass || !InventoryRef)
 		ItemWidget->SetItemData(Item.ItemData);
 		ItemWidget->SetOrigin(Item.Origin);
 		ItemWidget->SetCellSize(CellSize);
+		ItemWidget->SetCount(Item.Count);
 
 		if (ActiveDragOp && ActiveDragOp->OriginalOrigin == Item.Origin)
 		{
@@ -122,6 +123,7 @@ if (!GridPanel || !SlotClass || !InventoryRef)
 	}
  
 	HighlightedCells.Empty();
+	// ActiveDragOp = nullptr;
 
 }
 
