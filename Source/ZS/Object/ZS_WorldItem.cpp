@@ -6,6 +6,7 @@
 #include "Character/ZSPlayerCharacter.h"
 #include "Component/ZS_InventoryComponent.h"
 #include "Components/SphereComponent.h"
+#include "DA/ZS_ItemData.h"
 
 // Sets default values
 AZS_WorldItem::AZS_WorldItem()
@@ -32,6 +33,21 @@ AZS_WorldItem::AZS_WorldItem()
 	NiagaraEffect->SetupAttachment(RootComponent);
 	NiagaraEffect->SetAutoActivate(true);
 
+}
+
+void AZS_WorldItem::InitializeWorldItem(UZS_ItemData* InItemData)
+{
+	ItemData = InItemData;
+
+	if (ItemData)
+	{
+		// 🔹 ItemData에 등록된 나이아가라 이펙트가 있다면 적용
+		if (ItemData->PickupEffect && NiagaraEffect)
+		{
+			NiagaraEffect->SetAsset(ItemData->PickupEffect);
+			NiagaraEffect->Activate(true);
+		}
+	}
 }
 
 // Called when the game starts or when spawned

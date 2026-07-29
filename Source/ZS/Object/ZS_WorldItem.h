@@ -20,6 +20,8 @@ public:
 	// Sets default values for this actor's properties
 	AZS_WorldItem();
 
+	void InitializeWorldItem(UZS_ItemData* InItemData);
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
