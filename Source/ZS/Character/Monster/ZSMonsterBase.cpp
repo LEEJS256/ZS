@@ -5,10 +5,12 @@
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "DA/ZSPlayerDataAsset.h"
+#include "DA/ZS_ItemData.h"
 #include "Components/WidgetComponent.h"
 #include "Controller/ZSAIController.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "Kismet/GameplayStatics.h"
+#include "Object/ZS_WorldItem.h"
 #include "UI/WBP_Damage_Text.h"
 #include "UI/ZS_MonsterHealthWidget.h"
 #include "Utility/ZSNativeGameplayTag.h"
@@ -105,8 +107,8 @@ void AZSMonsterBase::DeathMonster()
 	// 메시 충돌도 끄는 게 안전
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	// 잠깐 남겼다가 삭제 (연출용)
-	// SetLifeSpan(3.f);
+	DropItem();
+	
 	ApplyDissolveMI();
 	SetDissolve();
 	// Destroy();
@@ -208,6 +210,71 @@ void AZSMonsterBase::UpdateUI()
 		float Ratio = HP / MaxHP;
 		HealthBarWidget->SetHealthPercent(Ratio);
 	}
+}
+
+void AZSMonsterBase::DropItem()
+{
+	if (!HasAuthority()) 
+		return;
+
+	UZSPlayerDataAsset* MonsterDA = CharacterData.LoadSynchronous();
+	if (!MonsterDA) 
+		return;
+
+	UWorld* World = GetWorld();
+	if (!World) 
+		return;
+
+	FVector MonsterLocation = GetActorLocation();
+
+	for (const FDropItemInfo& DropInfo : MonsterDA->DropTable)
+	{
+		// 1. 클래스 및 ItemData 유효성 검사
+		if (!DropInfo.WorldItemClass)
+			continue;
+
+		// 2. 드랍 확률 체크
+		float RandVal = FMath::FRand(); // 0.0f ~ 1.0f
+		if (RandVal > DropInfo.DropChance)
+			continue;
+
+		UZS_ItemData* LoadedItemData = DropInfo.ItemData.LoadSynchronous();
+		if (!LoadedItemData)
+			continue;
+
+		// 3. 드랍 개수만큼 아이템 스폰
+		for (int32 i = 0; i < DropInfo.DropCount; ++i)
+		{
+			// 아이템들이 서로 겹치지 않도록 약간의 위치 오프셋 부여
+			FVector RandomOffset = FVector(
+				FMath::RandRange(-60.f, 60.f),
+				FMath::RandRange(-60.f, 60.f),
+				10.f
+			);
+
+			FVector SpawnLocation = MonsterLocation + RandomOffset;
+			FRotator SpawnRotation = FRotator(0.f, FMath::RandRange(0.f, 360.f), 0.f);
+
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.Owner = this;
+			SpawnParams.Instigator = GetInstigator();
+			SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+			AZS_WorldItem* SpawnedItem = World->SpawnActor<AZS_WorldItem>(
+				DropInfo.WorldItemClass,
+				SpawnLocation,
+				SpawnRotation,
+				SpawnParams
+			);
+
+			if (SpawnedItem)
+			{
+				// 4. 스폰된 WorldItem에 ItemData 세팅
+				SpawnedItem->InitializeWorldItem(LoadedItemData);
+			}
+		}
+	}
+	
 }
 
 void AZSMonsterBase::UpdateDissolve(float DeltaTime)

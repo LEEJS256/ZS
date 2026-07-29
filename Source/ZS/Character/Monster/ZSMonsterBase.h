@@ -40,13 +40,14 @@ public:
 	void SwitchTarget();
 	void Set_StartTargetPoint(ATargetPoint* ParaTarget);
 	void Set_EndTargetPoint(ATargetPoint* ParaTarget);
-
+	
 protected:
 	void UpdateHealthBarRotation();
 	void BaseDelegate();
 	void BaseUI();
 	void UpdateUI();
-
+	void DropItem();
+	
 	FTimerHandle RotateHandle;
 
 #pragma region EFFECT
