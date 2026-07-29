@@ -8,6 +8,30 @@
 #include "Abilities/GameplayAbility.h"
 #include "ZSPlayerDataAsset.generated.h"
 
+class UZS_ItemData;
+class AZS_WorldItem;
+
+USTRUCT(BlueprintType)
+struct FDropItemInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop")
+	TSubclassOf<AZS_WorldItem> WorldItemClass;
+	
+	// 드랍될 아이템 데이터
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop")
+	TSoftObjectPtr<UZS_ItemData> ItemData;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float DropChance = 1.0f;
+
+	// 드랍 개수 (기본 1개)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Drop", meta = (ClampMin = "1"))
+	int32 DropCount = 1;
+};
+
+
 /**
  * 
  */
@@ -84,5 +108,19 @@ public:
 	TSubclassOf<UGameplayEffect> GiveTeamtagEffect;
 	
 #pragma endregion
+
+#pragma region DROPDATA
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DropTable")
+	TArray<FDropItemInfo> DropTable;
+
+	// 골드 드랍 양 (필요 시)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DropTable")
+	float MinDropGold = 10.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "DropTable")
+	float MaxDropGold = 50.f;
+	
+#pragma endregion 
 	
 };
