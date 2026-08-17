@@ -13,6 +13,7 @@ class UWBP_Damage_Text;
 class UZSPlayerDataAsset;
 class UWidgetComponent;
 class UZS_MonsterHealthWidget;
+class UZS_MinimapIcon_Component;
 UCLASS()
 class ZS_API AZSMonsterBase : public ACharacter, public IAbilitySystemInterface
 {
@@ -70,6 +71,9 @@ protected:
 	TSubclassOf<UWBP_Damage_Text> DamageWidgetClass;
 	
 	void HandleDamageTaken(float Damage,FVector Location,bool bCritical,FGameplayTag DamageType);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
+	TObjectPtr<UZS_MinimapIcon_Component> MinimapIconComp;
 #pragma  endregion 
 	
 #pragma region  GAS

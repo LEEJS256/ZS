@@ -2,6 +2,8 @@
 
 
 #include "Character/Monster/ZSMonsterBase.h"
+
+#include "Component/ZS_MinimapIcon_Component.h"
 #include "Net/UnrealNetwork.h"
 #include "Components/CapsuleComponent.h"
 #include "DA/ZSPlayerDataAsset.h"
@@ -30,6 +32,7 @@ AZSMonsterBase::AZSMonsterBase()
 	HealthBarComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBar"));
 
 	HealthBarComponent->SetupAttachment(RootComponent);
+	HealthBarComponent->bHiddenInSceneCapture = true;  
 
 	// GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	// GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
@@ -41,6 +44,9 @@ AZSMonsterBase::AZSMonsterBase()
 	GetCapsuleComponent()->SetCollisionObjectType(ECC_Pawn);
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECR_Block);
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
+
+	
+	MinimapIconComp = CreateDefaultSubobject<UZS_MinimapIcon_Component>(TEXT("MinimapIconComp"));
 	
 }
 
