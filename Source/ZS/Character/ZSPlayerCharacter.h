@@ -17,9 +17,9 @@ class UZS_InventoryComponent;
 class UZS_ItemData;
 class USceneCaptureComponent2D;
 class UTextureRenderTarget2D;
-
+class UZS_MinimapIcon_Component;
 UCLASS()
-class ZS_API AZSPlayerCharacter : public ACharacter
+class ZS_API AZSPlayerCharacter : public ACharacter 
 {
 	GENERATED_BODY()
 
@@ -27,6 +27,7 @@ public:
 	// Sets default values for this character's properties
 	AZSPlayerCharacter();
 
+	USceneCaptureComponent2D* GetMinimapCaptureComp() const { return MinimapCaptureComp; }
 
 	UFUNCTION(BlueprintCallable)
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const;
@@ -104,6 +105,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category="UI")
 	TSubclassOf<UUserWidget> MinimapWidgetClass;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Minimap")
+	TObjectPtr<UZS_MinimapIcon_Component> MinimapIconComp;
 	
 #pragma endregion
 

@@ -8,13 +8,16 @@
 #include "Camera/CameraComponent.h"
 #include "Component/ZSPreviewComponent.h"
 #include "Component/ZS_InventoryComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
 #include "PlayerState/ZSPlayerState.h"
-#include "DA/ZS_ItemData.h"
+#include "Components/StaticMeshComponent.h"
 #include "UI/ZS_Crosshair.h"
+#include "UI/ZS_MinimapUI.h"
 #include "UI/ZS_playerHudWidget.h"
+#include "Component/ZS_MinimapIcon_Component.h"
 #include "Utility/ZSNativeGameplayTag.h"
 
 // Sets default values
@@ -25,7 +28,7 @@ AZSPlayerCharacter::AZSPlayerCharacter()
 
 	bUseControllerRotationPitch = false;
 	//카메라대로 캐릭터회전
-	 bUseControllerRotationYaw = true;
+	bUseControllerRotationYaw = true;
 	//bUseControllerRotationYaw = false;
 
 	bUseControllerRotationRoll = false;
@@ -52,6 +55,30 @@ AZSPlayerCharacter::AZSPlayerCharacter()
 
 	PreviewComponent = CreateDefaultSubobject<UZSPreviewComponent>(TEXT("PriviewComponent"));
 	Inventory = CreateDefaultSubobject<UZS_InventoryComponent>(TEXT("Inventory"));
+
+	//미니맵 부분
+	MinimapCaptureComp = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("MinimapCaptureComp"));
+	MinimapCaptureComp->SetupAttachment(RootComponent);
+
+	// 플레이어 머리 위 2000 units(20m) 높이에서 아래(-90도)를 바라보도록 설정
+	MinimapCaptureComp->SetRelativeLocation(FVector(0.f, 0.f, 4000.f));
+	MinimapCaptureComp->SetRelativeRotation(FRotator(-90.f, 0.f, 0.f));
+
+	MinimapCaptureComp->ProjectionType = ECameraProjectionMode::Orthographic;
+	MinimapCaptureComp->OrthoWidth = 5000.f;
+	MinimapCaptureComp->CaptureSource = SCS_BaseColor;
+
+	MinimapCaptureComp->ShowFlags.SetWidgetComponents(false);
+	MinimapCaptureComp->ShowFlags.SetParticles(false);
+	MinimapCaptureComp->ShowFlags.SetNiagara(false);
+
+	MinimapCaptureComp->bCaptureEveryFrame = false;
+	MinimapCaptureComp->bCaptureOnMovement = false;
+
+	// 플레이어 본인 미니맵 마커 컴포넌트
+	MinimapIconComp = CreateDefaultSubobject<UZS_MinimapIcon_Component>(TEXT("MinimapIconComp"));
+	MinimapIconComp->bFollowActorRotation = true; // 플레이어 시선 방향 회전 반영
+	
 }
 
 UAbilitySystemComponent* AZSPlayerCharacter::GetAbilitySystemComponent() const
@@ -71,6 +98,16 @@ void AZSPlayerCharacter::SetSprinting(bool bSprinting)
 	GetCharacterMovement()->MaxWalkSpeed = bIsSprinting ? SprintSpeed : WalkSpeed;
 }
 
+void AZSPlayerCharacter::UpdateMinimapCapture()
+{
+	if (MinimapCaptureComp)
+	{
+		MinimapCaptureComp->CaptureScene();
+	}
+
+
+}
+
 // Called when the game starts or when spawned
 void AZSPlayerCharacter::BeginPlay()
 {
@@ -80,10 +117,8 @@ void AZSPlayerCharacter::BeginPlay()
 	BaseUI();
 
 	Inventory->AddItem(Test_ItemData);
-	// if (Inventory)
-	// {
-	// 	Inventory->RefreshGrid();
-	// }
+
+	Beginplay_Minimap();
 }
 
 void AZSPlayerCharacter::PossessedBy(AController* NewController)
@@ -195,25 +230,68 @@ void AZSPlayerCharacter::OnSpeedAttributeChanged(const FOnAttributeChangeData& D
 	// 이동 속도 적용
 	MoveComp->MaxWalkSpeed = NewSpeed;
 }
+
 void AZSPlayerCharacter::UpdateCrosshair()
 {
-	bool bNowTargeting =IsTargetingEnemy();
+	bool bNowTargeting = IsTargetingEnemy();
 
 	if (bNowTargeting != bPrevTargeting)
 	{
 		CrosshairWidget->UpdateCrosshairColor(bNowTargeting);
-		bPrevTargeting =bNowTargeting;
+		bPrevTargeting = bNowTargeting;
 	}
 }
+void AZSPlayerCharacter::Beginplay_Minimap()
+{
+	if (!MinimapCaptureComp || !MinimapRenderTarget) return;
 
+	MinimapCaptureComp->TextureTarget = MinimapRenderTarget;
+	MinimapCaptureComp->ProjectionType = ECameraProjectionMode::Orthographic;
+	MinimapCaptureComp->OrthoWidth = 5000.f;
 
+	// ★ DrawDebugLine, DrawDebugCircle 등 모든 디버그 선 완벽 차단
+	MinimapCaptureComp->ShowFlags.SetCompositeDebugPrimitives(false);
+
+	// 캐릭터/몬스터(스켈레탈 메시) 제외
+	MinimapCaptureComp->ShowFlags.SetSkeletalMeshes(false);
+
+	// 파티클/나이아가라/위젯/데칼/스플라인 제외
+	MinimapCaptureComp->ShowFlags.SetParticles(false);
+	MinimapCaptureComp->ShowFlags.SetNiagara(false);
+	MinimapCaptureComp->ShowFlags.SetWidgetComponents(false);
+	MinimapCaptureComp->ShowFlags.SetDecals(false);
+	MinimapCaptureComp->ShowFlags.SetSplines(false);
+
+	// 그림자/안개 제거
+	MinimapCaptureComp->ShowFlags.SetDynamicShadows(false);
+	MinimapCaptureComp->ShowFlags.SetFog(false);
+	MinimapCaptureComp->ShowFlags.SetAtmosphere(false);
+
+	// 지형과 스태틱 메시는 유지
+	MinimapCaptureComp->ShowFlags.SetLandscape(true);
+	MinimapCaptureComp->ShowFlags.SetStaticMeshes(true);
+
+	// 플레이어 본인 액터 숨김
+	MinimapCaptureComp->HiddenActors.AddUnique(this);
+
+	// 주기적 캡처 타이머
+	GetWorldTimerManager().SetTimer(
+		MinimapTimerHandle,
+		this,
+		&AZSPlayerCharacter::UpdateMinimapCapture,
+		0.05f,
+		true
+	);
+
+	MinimapCaptureComp->CaptureScene();
+}
 bool AZSPlayerCharacter::IsTargetingEnemy()
 {
 	bool ReturnResult = false;
 
-	FVector		Start;
-	FRotator	Rot;
-	Controller->GetPlayerViewPoint(Start,Rot);
+	FVector Start;
+	FRotator Rot;
+	Controller->GetPlayerViewPoint(Start, Rot);
 
 	FVector End = Start + Rot.Vector() * 10000.f;
 
@@ -229,7 +307,7 @@ bool AZSPlayerCharacter::IsTargetingEnemy()
 		Params);
 
 	AActor* HitActor = Hit.GetActor();
-	
+
 	if (ReturnResult && HitActor)
 	{
 		IAbilitySystemInterface* ASCInterface = Cast<IAbilitySystemInterface>(HitActor);
@@ -243,12 +321,12 @@ bool AZSPlayerCharacter::IsTargetingEnemy()
 			}
 		}
 	}
-	 //
-	 // if (ReturnResult && Hit.GetActor()->ActorHasTag("Monster"))
-	 // {
-	 // }
+	//
+	// if (ReturnResult && Hit.GetActor()->ActorHasTag("Monster"))
+	// {
+	// }
 
-	
+
 	return false;
 }
 
@@ -270,6 +348,16 @@ void AZSPlayerCharacter::BaseUI()
 		if (CrosshairWidget)
 		{
 			CrosshairWidget->AddToViewport();
+		}
+	}
+
+	if (MinimapWidgetClass)
+	{
+		MinimapWidget = CreateWidget<UZS_MinimapUI>(GetWorld(), MinimapWidgetClass);
+		if (MinimapWidget)
+		{
+			MinimapWidget->SetTargetCaptureComponent(MinimapCaptureComp);
+			MinimapWidget->AddToViewport();
 		}
 	}
 }
