@@ -13,6 +13,8 @@
 class UAbilitySystemComponent;
 class UZSAttributeSet;
 class UTextBlock;
+class UZS_NeonProgressBar;
+
 UCLASS()
 class ZS_API UZS_playerHudWidget : public UUserWidget
 {
@@ -25,36 +27,25 @@ public:
 
 	void Init(AActor* OwnerActor);
 
-	
 protected:
-	
 	UPROPERTY()
 	UAbilitySystemComponent* ASC;
 
 	UPROPERTY()
 	const UZSAttributeSet* AttributeSet;
-	
+
 	// ProgressBar 연결
 	UPROPERTY(meta = (BindWidget))
-	class UProgressBar* HPBar;
+	TObjectPtr<UZS_NeonProgressBar> HPBar;
 
 	UPROPERTY(meta = (BindWidget))
-	class UProgressBar* StaminaBar;
+	TObjectPtr<UZS_NeonProgressBar> StaminaBar;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* HealthText;
 
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* StamintText;
-	
-	UPROPERTY(meta = (BindWidget))
-	UTextBlock* SpeedText;
-
-	
 	// Delegate 콜백
 	void OnHealthChanged(const struct FOnAttributeChangeData& Data);
-	void OnSpeedChanged(const struct FOnAttributeChangeData& Data);
 	void OnStaminaChanged(const struct FOnAttributeChangeData& Data);
+	// void OnStaminaChanged(const struct FOnAttributeChangeData& Data);
 	// 초기값 세팅용
 	void UpdateInitialValues();
 };
