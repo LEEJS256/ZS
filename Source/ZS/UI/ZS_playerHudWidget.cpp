@@ -7,18 +7,21 @@
 #include "Character/ZSPlayerCharacter.h"
 #include "Components/ProgressBar.h"
 #include "GAS/Attribute/ZSAttributeSet.h"
+#include "Slate/ZS_NeonProgressBar.h"
 
 
 void UZS_playerHudWidget::UpdateHUD(float CurrentHP, float MaxHP, float CurrentStamina, float MaxStamina)
 {
-	if (HPBar && MaxHP > 0)
+	if (HPBar && MaxHP > 0.0f)
 	{
-		HPBar->SetPercent(CurrentHP / MaxHP);
+		const float HPPercent = FMath::Clamp(CurrentHP / MaxHP, 0.0f, 1.0f);
+		HPBar->SetPercent(HPPercent);
 	}
 
-	if (StaminaBar && MaxStamina > 0)
+	if (StaminaBar && MaxStamina > 0.0f)
 	{
-		StaminaBar->SetPercent(CurrentStamina / MaxStamina);
+		const float StaminaPercent = FMath::Clamp(CurrentStamina / MaxStamina, 0.0f, 1.0f);
+		StaminaBar->SetPercent(StaminaPercent);
 	}
 }
 
@@ -40,62 +43,86 @@ void UZS_playerHudWidget::Init(AActor* OwnerActor)
 		return;
 
 	ASC->GetGameplayAttributeValueChangeDelegate(
-		UZSAttributeSet::GetHealthAttribute()
-	).AddUObject(this, &UZS_playerHudWidget::OnHealthChanged);
-
-	ASC->GetGameplayAttributeValueChangeDelegate(
-		UZSAttributeSet::GetSpeedAttribute()
-	).AddUObject(this, &UZS_playerHudWidget::OnSpeedChanged);
+			UZSAttributeSet::GetHealthAttribute()
+		).AddUObject(this, &UZS_playerHudWidget::OnHealthChanged);
 
 	ASC->GetGameplayAttributeValueChangeDelegate(
 		UZSAttributeSet::GetStaminaAttribute()
 	).AddUObject(this, &UZS_playerHudWidget::OnStaminaChanged);
+	//
+	// ASC->GetGameplayAttributeValueChangeDelegate(
+	// 	UZSAttributeSet::GetStaminaAttribute()
+	// ).AddUObject(this, &UZS_playerHudWidget::OnStaminaChanged);
 
 	UpdateInitialValues();
 }
+//
+// void UZS_playerHudWidget::OnHealthChanged(const struct FOnAttributeChangeData& Data)
+// {
+// 	if (HealthText)
+// 	{
+// 		// HealthText->SetText(FText::AsNumber(Data.NewValue));
+// 		HealthText->SetText(
+// 			FText::FromString(FString::Printf(TEXT("Health: %.0f"), Data.NewValue)));
+//
+// 		float MaxHP = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxHealthAttribute());
+//
+// 		UpdateHUD(Data.NewValue, MaxHP,
+// 			ASC->GetNumericAttribute(UZSAttributeSet::GetStaminaAttribute()),
+// 			ASC->GetNumericAttribute(UZSAttributeSet::GetMaxStaminaAttribute()));
+// 	}
+// }
+//
+// void UZS_playerHudWidget::OnSpeedChanged(const struct FOnAttributeChangeData& Data)
+// {
+// 	if (SpeedText)
+// 	{
+// 		// SpeedText->SetText(FText::AsNumber(Data.NewValue));
+// 		SpeedText->SetText(
+// 			FText::FromString(FString::Printf(TEXT("Speed: %.0f"), Data.NewValue)));
+// 	}
+// }
+//
+// void UZS_playerHudWidget::OnStaminaChanged(const struct FOnAttributeChangeData& Data)
+// {
+// 	if (StamintText)
+// 	{
+// 		//StamintText->SetText(FText::AsNumber(Data.NewValue));
+// 		StamintText->SetText(
+// 			FText::FromString(FString::Printf(TEXT("Stamina: %.0f"), Data.NewValue)));
+//
+// 		float MaxStamina = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxStaminaAttribute());
+//
+// 		UpdateHUD(
+// 		ASC->GetNumericAttribute(UZSAttributeSet::GetHealthAttribute()),
+// 		ASC->GetNumericAttribute(UZSAttributeSet::GetMaxHealthAttribute()),
+// 			Data.NewValue,
+// 			MaxStamina);
+// 	}
+// }
 
-void UZS_playerHudWidget::OnHealthChanged(const struct FOnAttributeChangeData& Data)
+void UZS_playerHudWidget::OnHealthChanged(const FOnAttributeChangeData& Data)
 {
-	if (HealthText)
-	{
-		// HealthText->SetText(FText::AsNumber(Data.NewValue));
-		HealthText->SetText(
-			FText::FromString(FString::Printf(TEXT("Health: %.0f"), Data.NewValue)));
+	if (!ASC)
+		return;
 
-		float MaxHP = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxHealthAttribute());
+	const float MaxHP = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxHealthAttribute());
+	const float CurStam = ASC->GetNumericAttribute(UZSAttributeSet::GetStaminaAttribute());
+	const float MaxStam = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxStaminaAttribute());
 
-		UpdateHUD(Data.NewValue, MaxHP,
-			ASC->GetNumericAttribute(UZSAttributeSet::GetStaminaAttribute()),
-			ASC->GetNumericAttribute(UZSAttributeSet::GetMaxStaminaAttribute()));
-	}
+	UpdateHUD(Data.NewValue, MaxHP, CurStam, MaxStam);
 }
 
-void UZS_playerHudWidget::OnSpeedChanged(const struct FOnAttributeChangeData& Data)
+void UZS_playerHudWidget::OnStaminaChanged(const FOnAttributeChangeData& Data)
 {
-	if (SpeedText)
-	{
-		// SpeedText->SetText(FText::AsNumber(Data.NewValue));
-		SpeedText->SetText(
-			FText::FromString(FString::Printf(TEXT("Speed: %.0f"), Data.NewValue)));
-	}
-}
+	if (!ASC)
+		return;
 
-void UZS_playerHudWidget::OnStaminaChanged(const struct FOnAttributeChangeData& Data)
-{
-	if (StamintText)
-	{
-		//StamintText->SetText(FText::AsNumber(Data.NewValue));
-		StamintText->SetText(
-			FText::FromString(FString::Printf(TEXT("Stamina: %.0f"), Data.NewValue)));
+	const float CurHP = ASC->GetNumericAttribute(UZSAttributeSet::GetHealthAttribute());
+	const float MaxHP = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxHealthAttribute());
+	const float MaxStam = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxStaminaAttribute());
 
-		float MaxStamina = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxStaminaAttribute());
-
-		UpdateHUD(
-		ASC->GetNumericAttribute(UZSAttributeSet::GetHealthAttribute()),
-		ASC->GetNumericAttribute(UZSAttributeSet::GetMaxHealthAttribute()),
-			Data.NewValue,
-			MaxStamina);
-	}
+	UpdateHUD(CurHP, MaxHP, Data.NewValue, MaxStam);
 }
 
 void UZS_playerHudWidget::UpdateInitialValues()
@@ -103,15 +130,10 @@ void UZS_playerHudWidget::UpdateInitialValues()
 	if (!ASC)
 		return;
 
-	float Health = ASC->GetNumericAttribute(UZSAttributeSet::GetHealthAttribute());
-	float Speed = ASC->GetNumericAttribute(UZSAttributeSet::GetSpeedAttribute());
-	float Stamina	= ASC->GetNumericAttribute(UZSAttributeSet::GetStaminaAttribute());
-;	if (HealthText)
-		HealthText->SetText(FText::AsNumber(Health));
+	const float CurHP = ASC->GetNumericAttribute(UZSAttributeSet::GetHealthAttribute());
+	const float MaxHP = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxHealthAttribute());
+	const float CurStam = ASC->GetNumericAttribute(UZSAttributeSet::GetStaminaAttribute());
+	const float MaxStam = ASC->GetNumericAttribute(UZSAttributeSet::GetMaxStaminaAttribute());
 
-	if (SpeedText)
-		SpeedText->SetText(FText::AsNumber(Speed));
-
-	if (StamintText)
-		StamintText->SetText(FText::AsNumber(Stamina));
+	UpdateHUD(CurHP, MaxHP, CurStam, MaxStam);
 }
